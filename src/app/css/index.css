@@ -1,0 +1,115 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+  transition: all 0.2s ease-in;
+  user-select: none;
+}
+
+:root {
+  line-height: 1.5;
+  font-weight: 300;
+
+  color-scheme: light dark;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+:root {
+  --primary-1: #03001c;
+  --primary-2: #301e67;
+  --card: #301e678d;
+  --primary-3: #5b8fb9;
+  --primary-3: #9c83ea;
+  --primary-4: #b6eada;
+  --sidenav: #03001cce;
+  --gradient: #1c2f4b;
+}
+
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --primary-1: #bce3ffce;
+    --primary-2: #e8aac5;
+    --card: #e8aac58d;
+    --primary-3: #5b8fb9;
+    --primary-4: #335168;
+    --sidenav: #bce3ffce;
+    --gradient: #f7acff;
+  }
+}
+
+body {
+  min-height: 100vh;
+  width: 100vw;
+  background: radial-gradient(circle at top, var(--gradient), var(--primary-1), var(--primary-1));
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--primary-3);
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.proxyCards {
+  /* min-height: 75vh; */
+  margin-top: 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+
+  .card {
+    height: 5rem;
+    width: 15rem;
+    background: var(--card);
+    border-radius: 0.5rem;
+    padding: 1rem;
+    cursor: pointer;
+    border: 1px solid var(--card);
+
+    &:hover {
+      border: 1px solid var(--primary-3) !important;
+    }
+
+    p {
+      font-size: 0.8rem;
+    }
+
+    span {
+      color: var(--primary-4);
+    }
+  }
+}
+
+.selected {
+  background: var(--primary-2) !important;
+  border: 1px solid var(--primary-2) !important;
+}
+
+/* toast */
+.toast{
+  text-align: center;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  padding: 0.7rem;
+  width: 20rem;
+  border-radius: 0.5rem;
+}
+.info {
+  background: rgba(135, 207, 235, 0.8);
+  color: black;
+}
+.success {
+  background: rgba(172, 255, 47, 0.8);
+  color: black;
+}
+.error {
+  background: rgba(255, 0, 0, 0.8);
+  color: white;
+}
