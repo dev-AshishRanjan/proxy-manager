@@ -213,12 +213,14 @@ ipcMain.on("proxy:set", (e, options) => {
   );
   // setProxyForVSCode(`https://${options.ipAddress}:${options.port}`);
   setProxyForPip(`https://${options.ipAddress}:${options.port}`);
+  setSystemEnvironmentVariables(`http://${options.ipAddress}:${options.port}`);
 });
 ipcMain.on("proxy:unset", (e, options) => {
   console.log(options);
   unsetProxy();
   // unsetProxyForVSCode();
   unsetProxyForPip();
+  unsetSystemEnvironmentVariables();
 });
 
 // change proxy and send using webcontents
@@ -421,4 +423,65 @@ function unsetProxyForPip() {
     });
   });
   mainWindow.webContents.send("proxy:success", { msg: "success : unset pip" });
+}
+
+function setSystemEnvironmentVariables(proxyServer) {
+  // Determine the operating system
+  if (process.platform === "win32") {
+    // Windows
+    const commands = [
+      `setx HTTP_PROXY ${proxyServer}`,
+      `setx HTTPS_PROXY ${proxyServer}`,
+    ];
+
+    commands.forEach(async (command) => {
+      exec(command, async (error, stdout, stderr) => {
+        if (error) {
+          console.error(`Error executing command: ${command}`, stderr);
+          await mainWindow.webContents.send("proxy:error", { msg: stderr });
+        } else {
+          console.log(`Command executed successfully: ${command}`);
+        }
+      });
+    });
+  } else {
+    console.error(
+      "Setting system environment variables is only supported on Windows."
+    );
+    mainWindow.webContents.send("proxy:warning", {
+      msg: "warning : system environment variables is only supported on Windows",
+    });
+  }
+  mainWindow.webContents.send("proxy:success", {
+    msg: "success : set system environment variables",
+  });
+}
+
+function unsetSystemEnvironmentVariables() {
+  // Determine the operating system
+  if (process.platform === "win32") {
+    // Windows
+    const commands = ['setx HTTP_PROXY ""', 'setx HTTPS_PROXY ""'];
+
+    commands.forEach(async (command) => {
+      exec(command, async (error, stdout, stderr) => {
+        if (error) {
+          console.error(`Error executing command: ${command}`, stderr);
+          await mainWindow.webContents.send("proxy:error", { msg: stderr });
+        } else {
+          console.log(`Command executed successfully: ${command}`);
+        }
+      });
+    });
+  } else {
+    console.error(
+      "Unsetting system environment variables is only supported on Windows."
+    );
+    mainWindow.webContents.send("proxy:warning", {
+      msg: "warning : system environment variables is only supported on Windows",
+    });
+  }
+  mainWindow.webContents.send("proxy:success", {
+    msg: "success : unset system environment variables",
+  });
 }
