@@ -131,7 +131,7 @@ const checkCurrentProxy = (callback) => {
 // exposing to renderer process
 // here mainly nodejs library methods are exposed
 contextBridge.exposeInMainWorld("proxy", {
-  checkCurrentProxy: () => checkCurrentProxy(),
+  checkCurrentProxy: (e) => checkCurrentProxy(e),
   checkProxyList: () => checkProxyList(),
   proxyListAdd: (e) => proxyListAdd(e),
   proxyListDelete: (e) => proxyListDelete(e),

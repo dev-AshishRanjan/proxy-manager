@@ -21,6 +21,19 @@ function renderCard(ele) {
     ? cardDiv.addEventListener("click", () => handleProxyChange(ele))
     : cardDiv.addEventListener("click", () => handleProxyRemove());
   // cardDiv.classList.add("selected");
+  proxy.checkCurrentProxy((proxy, error) => {
+    if (error && ele.title === "Remove Proxy") {
+      console.error(error);
+      cardDiv.classList.add("selected");
+      return;
+    }
+    else if (
+      ele.ipAddress == proxy.split(":")[0] &&
+      ele.port == proxy.split(":")[1]
+    ) {
+      cardDiv.classList.add("selected");
+    }
+  });
   proxyCards.appendChild(cardDiv);
 }
 
@@ -59,8 +72,7 @@ function sendNotification({ title, body, clickMessage }) {
 //     console.error(error);
 //     return;
 //   }
-//   vars = proxy;
-//   console.log({ vars });
+//   console.log({ proxy });
 // });
 
 function fireToast(message, type = info) {
@@ -78,8 +90,14 @@ function fireToast(message, type = info) {
 window.ipcRenderer.on("proxy:success", (e, options) => {
   console.log({ e });
   fireToast(e.msg, "success");
+  setTimeout(() => {
+    window.location.reload();
+  }, 500);
 });
 window.ipcRenderer.on("proxy:error", (e, options) => {
   console.log({ e });
   fireToast(e.msg, "error");
+  setTimeout(() => {
+    window.location.reload();
+  }, 500);
 });
