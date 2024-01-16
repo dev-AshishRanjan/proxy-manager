@@ -20,7 +20,7 @@ const handleSubmission = async (e) => {
     subject: subject.value,
     message: msg.value,
   };
-  fetch(`https://submit-form.com/5kKhpqZtL}`, {
+  fetch(`https://submit-form.com/5kKhpqZtL`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
