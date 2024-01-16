@@ -100,7 +100,7 @@ const menu = [
             },
             {
               label: "Check System Proxy",
-              click: () => createDynamicWindow("checkPoxy.html"),
+              click: () => createDynamicWindow("checkProxy.html"),
               accelerator: "CmdOrCtrl+p",
             },
             {
@@ -139,7 +139,7 @@ const menu = [
             },
             {
               label: "Check System Proxy",
-              click: () => createDynamicWindow("checkPoxy.html"),
+              click: () => createDynamicWindow("checkProxy.html"),
               accelerator: "CmdOrCtrl+p",
             },
             {
@@ -170,6 +170,9 @@ const checkProxy = () => {
     mainWindow.webContents.send("proxy:check:error", {
       msg: `error : Unsupported operating system`,
     });
+    dynamicWindow.webContents.send("proxy:check:error", {
+      msg: `error : Unsupported operating system`,
+    });
     return;
   }
 
@@ -180,6 +183,9 @@ const checkProxy = () => {
       mainWindow.webContents.send("proxy:check:error", {
         msg: `error : ${stderr}`,
       });
+      dynamicWindow.webContents.send("proxy:check:error", {
+        msg: `error : ${stderr}`,
+      });
       return;
     }
 
@@ -188,7 +194,11 @@ const checkProxy = () => {
     const proxy = stdout.split(" ");
     const currentProxy = proxy[proxy.length - 1].trim();
     console.log({ currentProxy });
-    mainWindow.webContents.send("proxy:success", {
+    mainWindow.webContents.send("proxy:check:success", {
+      msg: `current system proxy : ${currentProxy}`,
+      proxy: currentProxy,
+    });
+    dynamicWindow.webContents.send("proxy:check:success", {
       msg: `current system proxy : ${currentProxy}`,
       proxy: currentProxy,
     });
