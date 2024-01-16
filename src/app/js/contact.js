@@ -8,7 +8,17 @@ const btn = document.querySelector(".custom>.btn");
 
 btn &&
   btn.addEventListener("click", () => {
-    handleSubmission();
+    if (
+      namet.value == "" ||
+      email.value == "" ||
+      subject.value == "" ||
+      msg.value == ""
+    ) {
+      fireToast(`All fields are required`, "error");
+      return;
+    } else {
+      handleSubmission();
+    }
   });
 const handleSubmission = async (e) => {
   console.log("form submitted");

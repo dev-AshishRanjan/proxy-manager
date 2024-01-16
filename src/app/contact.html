@@ -17,9 +17,21 @@
   <body>
     <!-- <h1>Contact</h1> -->
     <form class="custom">
-      <input type="text" placeholder="Name" name="Name" class="name" />
-      <input type="email" placeholder="Email" name="Email" class="email" />
-      <input type="text" placeholder="Subject" name="Subject" class="subject" />
+      <input type="text" placeholder="Name" name="Name" class="name" required />
+      <input
+        type="email"
+        placeholder="Email"
+        name="Email"
+        class="email"
+        required
+      />
+      <input
+        type="text"
+        placeholder="Subject"
+        name="Subject"
+        class="subject"
+        required
+      />
       <textarea
         name="msg"
         id="msg"
@@ -27,6 +39,7 @@
         rows="5"
         placeholder="Message"
         class="msg"
+        required
       ></textarea>
       <button type="button" class="btn">submit</button>
     </form>

@@ -7,7 +7,12 @@ const btn = document.querySelector(".custom>.btn");
 
 btn &&
   btn.addEventListener("click", () => {
-    handleSubmission();
+    if (title.value == "" || ipAddress.value == "" || port.value == "") {
+      fireToast(`All Fields are required`, "error");
+      return;
+    }else{
+      handleSubmission();
+    }
   });
 function handleSubmission(e) {
   console.log("form submitted");

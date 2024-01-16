@@ -21,6 +21,18 @@ module.exports = {
       config: {},
     },
   ],
+  publishers: [
+    {
+      name: "@electron-forge/publisher-github",
+      config: {
+        repository: {
+          owner: "dev-AshishRanjan",
+          name: "proxy-manager",
+        },
+        draft: true,
+      },
+    },
+  ],
   plugins: [
     {
       name: "@electron-forge/plugin-auto-unpack-natives",

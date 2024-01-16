@@ -32,7 +32,7 @@ const createWindow = () => {
       contextIsolation: true,
     },
     // autoHideMenuBar: true,
-    icon:__dirname+'./assets/icons/icon_512.png'
+    icon: __dirname + "./assets/icons/icon_512.png",
   });
 
   // and load the index.html of the app.
@@ -47,7 +47,9 @@ const createWindow = () => {
     if (dynamicWindow) {
       dynamicWindow.close();
     }
-    // app.quit();
+    if (!isMac) {
+      app.quit();
+    }
   });
 };
 // create dynamic window
@@ -62,7 +64,7 @@ const createDynamicWindow = (file) => {
     },
     fullscreenable: false,
     resizable: false,
-    icon:__dirname+'./assets/icons/icon_512.png'
+    icon: __dirname + "./assets/icons/icon_512.png",
   });
 
   // and load the index.html of the app.
