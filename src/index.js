@@ -24,7 +24,7 @@ let dynamicWindow;
 const createWindow = () => {
   // Create the browser window.
   mainWindow = new BrowserWindow({
-    width: isDev ? 1000 : 500,
+    width: isDev ? 1000 : 550,
     height: 600,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
@@ -32,7 +32,7 @@ const createWindow = () => {
       contextIsolation: true,
     },
     // autoHideMenuBar: true,
-    // icon:__dirname+'./assets/icons/icon_512.png'
+    icon:__dirname+'./assets/icons/icon_512.png'
   });
 
   // and load the index.html of the app.
@@ -53,7 +53,7 @@ const createWindow = () => {
 // create dynamic window
 const createDynamicWindow = (file) => {
   dynamicWindow = new BrowserWindow({
-    width: isDev ? 1000 : 500,
+    width: isDev ? 1000 : 550,
     height: 600,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
@@ -62,6 +62,7 @@ const createDynamicWindow = (file) => {
     },
     fullscreenable: false,
     resizable: false,
+    icon:__dirname+'./assets/icons/icon_512.png'
   });
 
   // and load the index.html of the app.
@@ -97,6 +98,11 @@ const menu = [
               label: "Contact",
               click: () => createDynamicWindow("contact.html"),
               accelerator: "CmdOrCtrl+m",
+            },
+            {
+              label: "Notice",
+              click: () => createDynamicWindow("notice.html"),
+              accelerator: "CmdOrCtrl+n",
             },
             {
               label: "Check System Proxy",
@@ -136,6 +142,11 @@ const menu = [
               label: "Contact",
               click: () => createDynamicWindow("contact.html"),
               accelerator: "CmdOrCtrl+m",
+            },
+            {
+              label: "Notice",
+              click: () => createDynamicWindow("notice.html"),
+              accelerator: "CmdOrCtrl+n",
             },
             {
               label: "Check System Proxy",

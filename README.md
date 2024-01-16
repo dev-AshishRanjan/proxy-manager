@@ -25,7 +25,7 @@
 </div>
 
 <p align="center">
-  <img align="center" src="https://readme-typing-svg.herokuapp.com?color=%23${textVal}&lines=+👋🏻+Welcome+to+proxy+manager+👋🏻;👨🏻‍💻+Lets+Build+Together+👩🏻‍💻;💡+Get+To+Know+More+Electronjs!+💡;🌐+Check+our+package+🌐;🙏🏻+Thanks+for+Contributing+🙏🏻"
+  <img align="center" src="https://readme-typing-svg.herokuapp.com?color=%23${textVal}&lines=+👋🏻+Welcome+to+Proxy+Manager+👋🏻;👨🏻‍💻+Lets+Build+Together+👩🏻‍💻;💡+Get+To+Know+More+About+Proxy+Manager!+💡;🌐+Check+our+releases+🌐;🙏🏻+Thanks+for+Contributing+🙏🏻"
  <img src= 'https://capsule-render.vercel.app/api?type=rect&color=gradient&height=2.5'/>
 </p>
 
@@ -42,6 +42,15 @@ A Proxy Manager build with Electronjs.
 - In the main page you will get multiple cards, click on the card whose proxy you want to apply
 - Add, Remove or Edit the existing proxy list
 - Automatic Theme support based on your system settings
+
+## Proxy considered
+
+- System (Windows, Linux, Mac)
+- Git
+- NPM
+- VS code
+- Pip
+- System (user) Enviroments
 
 ## Tech Stack
 
