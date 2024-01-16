@@ -1,6 +1,7 @@
 module.exports = {
   packagerConfig: {
     asar: true,
+    executableName: "proxy-manager",
   },
   rebuildConfig: {},
   makers: [

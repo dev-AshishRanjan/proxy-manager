@@ -33,7 +33,7 @@
     "electron": "^28.1.3"
   },
   "build": {
-    "appId": "com.my-website.proxy-manager",
+    "appId": "com.ashish.proxy-manager",
     "productName": "Proxy Manager",
     "copyright": "Copyright © 2024 ${author}",
     "mac": {
@@ -56,7 +56,11 @@
       "*.js"
     ],
     "linux": {
-      "category": "Developer_tools"
+      "category": "Developer_tools",
+      "target": [
+        "AppImage",
+        "deb"
+      ]
     },
     "directories": {
       "buildResources": "src/assets"
