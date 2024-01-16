@@ -101,3 +101,10 @@ window.ipcRenderer.on("proxy:error", (e, options) => {
     window.location.reload();
   }, 500);
 });
+window.ipcRenderer.on("proxy:warning", (e, options) => {
+  console.log({ e });
+  fireToast(e.msg, "info");
+  setTimeout(() => {
+    window.location.reload();
+  }, 500);
+});
