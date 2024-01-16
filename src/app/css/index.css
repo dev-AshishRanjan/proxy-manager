@@ -267,7 +267,8 @@ textarea,
     /* background: var(--primary-2); */
     transform: translateY(-100%);
     text-align: center;
-    span{
+
+    span {
       color: var(--primary-3);
       font-weight: 400;
     }
@@ -298,7 +299,7 @@ textarea,
 }
 
 /* notice */
-.noticeList{
+.noticeList {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -306,7 +307,7 @@ textarea,
   gap: 1rem;
   width: 100%;
 
-  .notice{
+  .notice {
     width: 100%;
     min-height: 5rem;
     background: var(--card);

@@ -16,7 +16,7 @@ if (require("electron-squirrel-startup")) {
 }
 
 const isMac = process.platform === "darwin";
-const isDev = process.env.NODE_ENV !== "production";
+const isDev = process.env.NODE_ENV === "development"; //change it to (!=="production")
 
 let mainWindow;
 let dynamicWindow;
@@ -32,9 +32,9 @@ const createWindow = () => {
       contextIsolation: true,
     },
     // autoHideMenuBar: true,
-    icon: __dirname + "./assets/icons/icon_512.png",
+    icon: path.join(__dirname, "./assets/icons/icon_512.png"),
   });
-
+  mainWindow.setIcon(path.join(__dirname, "./assets/icons/icon_512.png"));
   // and load the index.html of the app.
   mainWindow.loadFile(path.join(__dirname, "./app/index.html"));
   // Open the DevTools if dev
@@ -64,9 +64,10 @@ const createDynamicWindow = (file) => {
     },
     fullscreenable: false,
     resizable: false,
-    icon: __dirname + "./assets/icons/icon_512.png",
+    icon: path.join(__dirname, "./assets/icons/icon_512.png"),
   });
 
+  dynamicWindow.setIcon(path.join(__dirname, "./assets/icons/icon_512.png"));
   // and load the index.html of the app.
   dynamicWindow.loadFile(path.join(__dirname, `./app/${file}`));
   if (isDev) {

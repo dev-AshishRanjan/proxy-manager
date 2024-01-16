@@ -36,8 +36,9 @@
     "appId": "com.ashish.proxy-manager",
     "productName": "Proxy Manager",
     "copyright": "Copyright © 2024 ${author}",
+    "icon": "/public/icons/win/icon_512.ico",
     "mac": {
-      "icon": "./src/assets/icons/mac/icon_512.icns",
+      "icon": "./public/icons/mac/icon_512.icns",
       "category": "public.app-category.developer_tools",
       "target": [
         "dmg",
@@ -46,13 +47,13 @@
       ]
     },
     "win": {
-      "icon": "./src/assets/icons/win/icon_512.ico"
+      "icon": "./public/icons/win/icon_512.ico"
     },
     "files": [
       "./build/**/*",
       "./dist/**/*",
       "./node_modules/**/*",
-      "./src/**/*",
+      "./public/**/*",
       "*.js"
     ],
     "linux": {
@@ -63,10 +64,7 @@
       ]
     },
     "directories": {
-      "buildResources": "src/assets"
-    },
-    "dmg": {
-      "icon": false
+      "buildResources": "public"
     }
   }
 }
