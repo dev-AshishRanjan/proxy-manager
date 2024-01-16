@@ -9,7 +9,6 @@ const {
 const path = require("path");
 const { exec } = require("child_process");
 // const settings = require("electron-settings");
-// const { exec } = require("child_process");
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {
@@ -32,31 +31,44 @@ const createWindow = () => {
       nodeIntegration: true,
       contextIsolation: true,
     },
+    // autoHideMenuBar: true,
+    // icon:__dirname+'./assets/icons/icon_512.png'
   });
 
   // and load the index.html of the app.
   mainWindow.loadFile(path.join(__dirname, "./app/index.html"));
-
   // Open the DevTools if dev
   if (isDev) {
     mainWindow.webContents.openDevTools();
   }
+  // when main window is closed, close all window
+  mainWindow.on("closed", () => {
+    // Close all windows when the main window is closed
+    if (dynamicWindow) {
+      dynamicWindow.close();
+    }
+    app.quit();
+  });
 };
-
 // create dynamic window
 const createDynamicWindow = (file) => {
   dynamicWindow = new BrowserWindow({
-    width: 500,
+    width: isDev ? 1000 : 500,
     height: 600,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       nodeIntegration: true,
       contextIsolation: true,
     },
+    fullscreenable: false,
+    resizable: false,
   });
 
   // and load the index.html of the app.
   dynamicWindow.loadFile(path.join(__dirname, `./app/${file}`));
+  if (isDev) {
+    dynamicWindow.webContents.openDevTools();
+  }
 };
 
 const NOTIFICATION_TITLE = "Basic Notification";
@@ -77,11 +89,6 @@ const menu = [
           label: app.name,
           submenu: [
             {
-              label: "Custom",
-              click: () => createDynamicWindow("custom.html"),
-              accelerator: "CmdOrCtrl+k",
-            },
-            {
               label: "About",
               click: () => createDynamicWindow("about.html"),
               accelerator: "CmdOrCtrl+i",
@@ -90,6 +97,11 @@ const menu = [
               label: "Contact",
               click: () => createDynamicWindow("contact.html"),
               accelerator: "CmdOrCtrl+m",
+            },
+            {
+              label: "Add Custom Proxy",
+              click: () => createDynamicWindow("custom.html"),
+              accelerator: "CmdOrCtrl+k",
             },
           ],
         },
@@ -111,11 +123,6 @@ const menu = [
           label: "Options",
           submenu: [
             {
-              label: "Custom",
-              click: () => createDynamicWindow("custom.html"),
-              accelerator: "CmdOrCtrl+k",
-            },
-            {
               label: "About",
               click: () => createDynamicWindow("about.html"),
               accelerator: "CmdOrCtrl+i",
@@ -125,6 +132,11 @@ const menu = [
               click: () => createDynamicWindow("contact.html"),
               accelerator: "CmdOrCtrl+m",
             },
+            {
+              label: "Add Custom Proxy",
+              click: () => createDynamicWindow("custom.html"),
+              accelerator: "CmdOrCtrl+k",
+            },
           ],
         },
       ]
@@ -132,40 +144,50 @@ const menu = [
 ];
 
 // checking proxy
-// const checkProxy = () => {
-//   let proxyCommand;
+const checkProxy = () => {
+  let proxyCommand;
 
-//   // Determine the operating system
-//   if (process.platform === "win32") {
-//     proxyCommand =
-//       'reg query "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings" | find "ProxyServer"';
-//   } else if (process.platform === "linux") {
-//     proxyCommand = "env | grep -i proxy";
-//   } else if (process.platform === "darwin") {
-//     proxyCommand = "networksetup -getwebproxy Wi-Fi";
-//   } else {
-//     console.error("Unsupported operating system");
-//     return;
-//   }
+  // Determine the operating system
+  if (process.platform === "win32") {
+    proxyCommand =
+      'reg query "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings" | find "ProxyServer"';
+  } else if (process.platform === "linux") {
+    proxyCommand = "env | grep -i proxy";
+  } else if (process.platform === "darwin") {
+    proxyCommand = "networksetup -getwebproxy Wi-Fi";
+  } else {
+    console.error("Unsupported operating system");
+    mainWindow.webContents.send("proxy:check:error", {
+      msg: `error : Unsupported operating system`,
+    });
+    return;
+  }
 
-//   // Execute the proxy command
-//   exec(proxyCommand, (error, stdout, stderr) => {
-//     if (error) {
-//       console.error("Error checking proxy settings:", stderr);
-//       return;
-//     }
+  // Execute the proxy command
+  exec(proxyCommand, (error, stdout, stderr) => {
+    if (error) {
+      console.error("Error checking proxy settings:", stderr);
+      mainWindow.webContents.send("proxy:check:error", {
+        msg: `error : ${stderr}`,
+      });
+      return;
+    }
 
-//     // Check the result and print the proxy settings
-//     console.log("Proxy Settings:");
-//     const proxy = stdout.split(" ");
-//     const currentProxy = proxy[proxy.length - 1].trim();
-//     console.log({ currentProxy });
-//     // localStorage.setItem("currentProxy", currentProxy);
+    // Check the result and print the proxy settings
+    console.log("Proxy Settings:");
+    const proxy = stdout.split(" ");
+    const currentProxy = proxy[proxy.length - 1].trim();
+    console.log({ currentProxy });
+    mainWindow.webContents.send("proxy:success", {
+      msg: `current system proxy : ${currentProxy}`,
+      proxy: currentProxy,
+    });
+    // localStorage.setItem("currentProxy", currentProxy);
 
-//     // Save the proxy settings in electron-settings
-//     settings.set("currentProxy", currentProxy);
-//   });
-// };
+    // Save the proxy settings in electron-settings
+    // settings.set("currentProxy", currentProxy);
+  });
+};
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
@@ -221,6 +243,15 @@ ipcMain.on("proxy:unset", (e, options) => {
   // unsetProxyForVSCode();
   unsetProxyForPip();
   unsetSystemEnvironmentVariables();
+});
+ipcMain.on("proxy:check", (e, options) => {
+  console.log(options);
+  checkProxy();
+});
+ipcMain.on("custom-form:accepted", (e, options) => {
+  mainWindow.webContents.send("form-accepted", {
+    msg: "success : new proxy added",
+  });
 });
 
 // change proxy and send using webcontents

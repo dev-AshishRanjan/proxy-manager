@@ -49,16 +49,19 @@ function proxyListAdd(data) {
   const timeId = new Date().getTime().toString();
   const newData = {
     id: timeId,
-    title: data?.title ?? timeId.splice(0, 4),
-    ipAddress: data?.ipAddress ?? "127.0.0.1",
-    port: parseInt(data?.port ?? "80"),
+    title: data.title || timeId.slice(0, 4),
+    ipAddress: data.ipAddress || "127.0.0.1",
+    port: parseInt(data.port || "80"),
   };
   console.log({ newData });
   let originalData = checkProxyList();
-  if (!originalData.some((e) => e.id === timeId)) {
+  if (!originalData.find((e) => e.id === timeId)) {
     // add to list and save in local storage
     originalData.push(newData);
     localStorage.setItem("proxyList", JSON.stringify(originalData));
+    // ipcRenderer.send("custom-form:accepted", {
+    //   msg: `Proxy data added`,
+    // });
   } else {
     alert(`${newData.title} already exists.`);
   }
@@ -66,7 +69,10 @@ function proxyListAdd(data) {
 
 function proxyListDelete(data) {
   let proxies = checkProxyList();
+  console.log({ proxies });
+  console.log({ data });
   let index = proxies.findIndex((p) => p.id === data);
+  console.log({ index });
   if (index !== -1) {
     proxies.splice(index, 1);
     localStorage.setItem("proxyList", JSON.stringify(proxies));

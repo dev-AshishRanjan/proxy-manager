@@ -1,21 +1,56 @@
 const proxyCards = document.querySelector(".proxyCards");
+const spinner = document.querySelector(".spinner");
 // const proxyList = localStorage.getItem("proxyList");
 // const proxyListParsed = JSON.parse(proxyList);
-var proxyListParsed = proxy.checkProxyList();
-const noProxy = { title: "Remove Proxy" };
-renderCard(noProxy);
-proxyListParsed.map((ele) => {
-  renderCard(ele);
-});
 
+var currentProxy;
+spinner.style.display = "block";
+// ipcRenderer.send("proxy:check");
+function initialRenderMainWindow() {
+  var proxyListParsed = proxy.checkProxyList();
+  const noProxy = { title: "Remove Proxy" };
+  renderCard(noProxy);
+  // spinner.style.display = "none";
+  proxyListParsed.map((ele) => {
+    renderCard(ele);
+  });
+}
+function reRenderMainWindow() {
+  var proxyListParsed = proxy.checkProxyList();
+  const noProxy = { title: "Remove Proxy" };
+  proxyCards ? (proxyCards.innerHTML = "") : null;
+  renderCard(noProxy);
+  proxyListParsed.map((ele) => {
+    renderCard(ele);
+  });
+  // ipcRenderer.send("proxy:check");
+  const vars = document.querySelectorAll(".card");
+  console.log({ vars });
+}
+initialRenderMainWindow();
+// reRenderMainWindow();
 function renderCard(ele) {
+  spinner.style.display = "none";
   let cardDiv = document.createElement("div");
   cardDiv.classList.add("card");
+  cardDiv.setAttribute("title", "click to set this proxy");
   let header = document.createElement("h3");
   header.innerText = ele.title;
   let proxyServer = document.createElement("p");
   proxyServer.innerHTML = `Proxy Server : <span>${ele.ipAddress}:${ele.port}</span>`;
   cardDiv.appendChild(header);
+  let close = document.createElement("p");
+  close.classList.add("close");
+  close.innerHTML = `<span>x</span>`;
+  close.setAttribute("title", "click to delete this proxy");
+  ele.ipAddress && cardDiv.appendChild(close);
+  ele.id &&
+    close.addEventListener("click", (e) => {
+      proxy.proxyListDelete(ele.id);
+      reRenderMainWindow();
+      fireToast("Removed from localstorage","success");
+      e.stopPropagation();
+    });
   ele.ipAddress && cardDiv.appendChild(proxyServer);
   ele.ipAddress
     ? cardDiv.addEventListener("click", () => handleProxyChange(ele))
@@ -26,31 +61,30 @@ function renderCard(ele) {
       console.error(error);
       cardDiv.classList.add("selected");
       return;
-    }
-    else if (
+    } else if (
       ele.ipAddress == proxy.split(":")[0] &&
       ele.port == proxy.split(":")[1]
     ) {
       cardDiv.classList.add("selected");
     }
   });
-  proxyCards.appendChild(cardDiv);
+  proxyCards && proxyCards.appendChild(cardDiv);
 }
 
 function handleProxyChange(ele) {
+  spinner.style.display = "block";
   console.log({ ele });
   ipcRenderer.send("proxy:set", ele);
-  // fireToast(ele.title, "info");
-  // fireToast(ele.title, "success");
-  // fireToast(ele.title, "error");
-
-  // sendNotification({
-  //   title: ele.title,
-  //   body: ele.ipAddress,
-  //   clickMessage: ele.id,
-  // });
 }
+
+// sendNotification({
+//   title: ele.title,
+//   body: ele.ipAddress,
+//   clickMessage: ele.id,
+// });
+
 function handleProxyRemove() {
+  spinner.style.display = "block";
   ipcRenderer.send("proxy:unset", {});
 }
 
@@ -90,21 +124,29 @@ function fireToast(message, type = info) {
 window.ipcRenderer.on("proxy:success", (e, options) => {
   console.log({ e });
   fireToast(e.msg, "success");
-  setTimeout(() => {
-    window.location.reload();
-  }, 500);
+  reRenderMainWindow();
 });
 window.ipcRenderer.on("proxy:error", (e, options) => {
   console.log({ e });
   fireToast(e.msg, "error");
-  setTimeout(() => {
-    window.location.reload();
-  }, 500);
+  reRenderMainWindow();
 });
 window.ipcRenderer.on("proxy:warning", (e, options) => {
   console.log({ e });
   fireToast(e.msg, "info");
-  setTimeout(() => {
-    window.location.reload();
-  }, 500);
+  reRenderMainWindow();
+});
+window.ipcRenderer.on("proxy:check:error", (e, options) => {
+  console.log({ e });
+  fireToast(e.msg, "error");
+});
+window.ipcRenderer.on("proxy:check:success", (e, options) => {
+  console.log({ e });
+  currentProxy = e.proxy;
+  fireToast(e.msg, "success");
+});
+window.ipcRenderer.on("form-accepted", (e, options) => {
+  console.log({ e });
+  fireToast(e.msg, "info");
+  reRenderMainWindow();
 });

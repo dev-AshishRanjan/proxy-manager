@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="../assets/icons/icon_32.png" />
     <meta http-equiv="Content-Security-Policy" content="script-src 'self'" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -14,7 +15,34 @@
     <title>Proxy Manager | Customize</title>
   </head>
   <body>
-    <h1>Customize</h1>
+    <h2>Add custom Proxy</h2>
+    <div class="body">
+      <!-- <div class="spinner"></div> -->
+      <form class="custom">
+        <input
+          type="text"
+          placeholder="Title"
+          name="title"
+          class="title"
+          required
+        />
+        <input
+          type="text"
+          placeholder="Proxy IP Address"
+          name="ipAddress"
+          class="ipAddress"
+          required
+        />
+        <input
+          type="number"
+          placeholder="Port"
+          name="port"
+          class="port"
+          required
+        />
+        <button type="button" class="btn">submit</button>
+      </form>
+    </div>
   </body>
-  <script src="./js/index.js"></script>
+  <script src="./js/custom.js"></script>
 </html>

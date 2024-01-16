@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="../assets/icons/icon_32.png" />
     <meta http-equiv="Content-Security-Policy" content="script-src 'self'" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -11,10 +12,24 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="./css/index.css" />
-    <title>Proxy Manager | Contact</title>
+    <title>Proxy Manager | Contact US</title>
   </head>
   <body>
-    <h1>Contact</h1>
+    <!-- <h1>Contact</h1> -->
+    <form class="custom">
+      <input type="text" placeholder="Name" name="Name" class="name" />
+      <input type="email" placeholder="Email" name="Email" class="email" />
+      <input type="text" placeholder="Subject" name="Subject" class="subject" />
+      <textarea
+        name="msg"
+        id="msg"
+        cols="25"
+        rows="5"
+        placeholder="Message"
+        class="msg"
+      ></textarea>
+      <button type="button" class="btn">submit</button>
+    </form>
   </body>
-  <script src="./js/index.js"></script>
+  <script src="./js/contact.js"></script>
 </html>

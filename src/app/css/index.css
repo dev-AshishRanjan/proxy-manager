@@ -51,11 +51,12 @@ body {
   align-items: center;
   color: var(--primary-3);
   flex-direction: column;
-  overflow: hidden;
+  overflow-x: hidden;
   padding: 1rem;
 }
 
-.proxyCards {
+.proxyCards,
+.body {
   /* min-height: 75vh; */
   margin-top: 2rem;
   display: flex;
@@ -72,6 +73,7 @@ body {
     padding: 1rem;
     cursor: pointer;
     border: 1px solid var(--card);
+    position: relative;
 
     &:hover {
       border: 1px solid var(--primary-3) !important;
@@ -84,16 +86,31 @@ body {
     span {
       color: var(--primary-4);
     }
+
+    .close {
+      color: var(--primary-3) !important;
+      position: absolute;
+      top: 0rem;
+      right: 0rem;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      opacity: 0.8;
+
+      &:hover {
+        background: var(--primary-1) !important;
+        opacity: 1;
+      }
+    }
   }
 }
 
 .selected {
   background: var(--primary-2) !important;
-  border: 1px solid var(--primary-2) !important;
+  border: 1px solid var(--primary-3) !important;
 }
 
 /* toast */
-.toast{
+.toast {
   text-align: center;
   position: absolute;
   bottom: 0;
@@ -101,16 +118,81 @@ body {
   padding: 0.7rem;
   width: 20rem;
   border-radius: 0.5rem;
+  font-size: 0.8rem;
+  z-index: 5;
+  word-break: break-all;
+  word-wrap: break-word;
 }
+
 .info {
   background: rgba(135, 207, 235, 0.8);
   color: black;
 }
+
 .success {
   background: rgba(172, 255, 47, 0.8);
   color: black;
 }
+
 .error {
   background: rgba(255, 0, 0, 0.8);
   color: white;
 }
+
+/* spinner */
+.spinner {
+  position: absolute;
+  z-index: 5;
+  left: 1rem;
+  bottom: 1rem;
+  width: 25px;
+  height: 25px;
+  border: 5px solid;
+  background: transparent;
+  border-color: var(--primary-4) transparent var(--primary-4) transparent;
+  border-radius: 50%;
+  animation: spin-anim 1.2s linear infinite;
+}
+
+@keyframes spin-anim {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* custom proxy */
+form {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  justify-content: center;
+  flex-direction: column;
+}
+
+input,
+textarea,
+.btn {
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  outline: none;
+  border: 1px solid var(--primary-2);
+  background: var(--primary-2);
+  color: var(--primary-3);
+  resize: none;
+}
+
+.btn {
+  cursor: pointer;
+
+  &:hover {
+    background: var(--primary-1);
+  }
+}
+
+/* ::selection{
+  background: var(--primary-1);
+} */
