@@ -196,3 +196,55 @@ textarea,
 /* ::selection{
   background: var(--primary-1);
 } */
+
+/* about */
+.about {
+  height: 100vh;
+  width: 100vw;
+  /* background: url("../../assets/about/bg.png") no-repeat center center/cover, radial-gradient(circle at top, var(--gradient), var(--primary-1), var(--primary-1)); */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0 0;
+
+  .body {
+    padding: 0;
+    margin: 0;
+    height: 100%;
+    width: 100%;
+    background: radial-gradient(circle at top, var(--card), transparent, var(--sidenav));
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    .abouthero,
+    .linkSection,
+    .techStack {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      flex-direction: column;
+      .name{
+        color: var(--primary-4);
+      }
+
+      .links {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-decoration: none;
+        min-width: 5rem;
+        max-width: 8rem;
+        height: 4rem;
+      }
+    }
+
+    .linkSection,
+    .techStack {
+      flex-direction: row;
+      gap: 0.5rem;
+    }
+  }
+}

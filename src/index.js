@@ -47,7 +47,7 @@ const createWindow = () => {
     if (dynamicWindow) {
       dynamicWindow.close();
     }
-    app.quit();
+    // app.quit();
   });
 };
 // create dynamic window
@@ -99,6 +99,11 @@ const menu = [
               accelerator: "CmdOrCtrl+m",
             },
             {
+              label: "Check System Proxy",
+              click: () => createDynamicWindow("checkPoxy.html"),
+              accelerator: "CmdOrCtrl+p",
+            },
+            {
               label: "Add Custom Proxy",
               click: () => createDynamicWindow("custom.html"),
               accelerator: "CmdOrCtrl+k",
@@ -131,6 +136,11 @@ const menu = [
               label: "Contact",
               click: () => createDynamicWindow("contact.html"),
               accelerator: "CmdOrCtrl+m",
+            },
+            {
+              label: "Check System Proxy",
+              click: () => createDynamicWindow("checkPoxy.html"),
+              accelerator: "CmdOrCtrl+p",
             },
             {
               label: "Add Custom Proxy",
