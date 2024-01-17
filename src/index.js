@@ -16,7 +16,7 @@ if (require("electron-squirrel-startup")) {
 }
 
 const isMac = process.platform === "darwin";
-const isDev = process.env.NODE_ENV !== "development"; //change it to (!=="production")
+const isDev = process.env.NODE_ENV === "development"; //change it to (!=="production")
 
 let mainWindow;
 let dynamicWindow;
@@ -118,32 +118,38 @@ const menu = [
             {
               label: "About",
               click: () => createDynamicWindow("about.html"),
-              accelerator: "CmdOrCtrl+i",
-            },
-            {
-              label: "Contact",
-              click: () => createDynamicWindow("contact.html"),
-              accelerator: "CmdOrCtrl+m",
+              accelerator: "CmdOrCtrl+I",
             },
             {
               label: "Notice",
               click: () => createDynamicWindow("notice.html"),
-              accelerator: "CmdOrCtrl+n",
+              accelerator: "CmdOrCtrl+N",
+            },
+            {
+              label: "Contact Us",
+              click: () => createDynamicWindow("contact.html"),
+              accelerator: "CmdOrCtrl+M",
+            },
+            {
+              type: "separator",
             },
             {
               label: "Check System Proxy",
               click: () => createDynamicWindow("checkProxy.html"),
-              accelerator: "CmdOrCtrl+p",
-            },
-            {
-              label: "Check Internet Speed",
-              click: () => createURLWindow(),
-              accelerator: "CmdOrCtrl+f",
+              accelerator: "CmdOrCtrl+P",
             },
             {
               label: "Add Custom Proxy",
               click: () => createDynamicWindow("custom.html"),
-              accelerator: "CmdOrCtrl+k",
+              accelerator: "CmdOrCtrl+K",
+            },
+            {
+              type: "separator",
+            },
+            {
+              label: "Check Internet Speed",
+              click: () => createURLWindow(),
+              accelerator: "CmdOrCtrl+F",
             },
           ],
         },
@@ -167,32 +173,38 @@ const menu = [
             {
               label: "About",
               click: () => createDynamicWindow("about.html"),
-              accelerator: "CmdOrCtrl+i",
-            },
-            {
-              label: "Contact",
-              click: () => createDynamicWindow("contact.html"),
-              accelerator: "CmdOrCtrl+m",
+              accelerator: "CmdOrCtrl+I",
             },
             {
               label: "Notice",
               click: () => createDynamicWindow("notice.html"),
-              accelerator: "CmdOrCtrl+n",
+              accelerator: "CmdOrCtrl+N",
+            },
+            {
+              label: "Contact Us",
+              click: () => createDynamicWindow("contact.html"),
+              accelerator: "CmdOrCtrl+M",
+            },
+            {
+              type: "separator",
             },
             {
               label: "Check System Proxy",
               click: () => createDynamicWindow("checkProxy.html"),
-              accelerator: "CmdOrCtrl+p",
-            },
-            {
-              label: "Check Internet Speed",
-              click: () => createURLWindow(),
-              accelerator: "CmdOrCtrl+f",
+              accelerator: "CmdOrCtrl+P",
             },
             {
               label: "Add Custom Proxy",
               click: () => createDynamicWindow("custom.html"),
-              accelerator: "CmdOrCtrl+k",
+              accelerator: "CmdOrCtrl+K",
+            },
+            {
+              type: "separator",
+            },
+            {
+              label: "Check Internet Speed",
+              click: () => createURLWindow(),
+              accelerator: "CmdOrCtrl+F",
             },
           ],
         },
