@@ -8,7 +8,16 @@
     "start": "electron-forge start",
     "package": "electron-forge package",
     "make": "electron-forge make",
+    "make:win": "electron-forge make --platform=win32",
+    "make:linux": "electron-forge make --platform=linux",
+    "make:mac": "electron-forge make --platform=darwin",
+    "make:all": "npm run make:win && npm run make:linux && npm run make:mac",
     "publish": "electron-forge publish",
+    "build": "electron-builder",
+    "build:linux": "electron-builder --linux",
+    "build:win": "electron-builder --win",
+    "build:mac": "electron-builder --mac",
+    "build:all": "npm run build:linux && npm run build:win && npm run build:mac",
     "lint": "echo \"No linting configured\""
   },
   "keywords": [],
@@ -36,7 +45,8 @@
     "appId": "com.ashish.proxy-manager",
     "productName": "Proxy Manager",
     "copyright": "Copyright © 2024 ${author}",
-    "icon": "/public/icons/win/icon_512.ico",
+    "icon": "./public/icons/win/icon_512.ico",
+    "asar": false,
     "mac": {
       "icon": "./public/icons/mac/icon_512.icns",
       "category": "public.app-category.developer_tools",
@@ -47,24 +57,30 @@
       ]
     },
     "win": {
-      "icon": "./public/icons/win/icon_512.ico"
+      "icon": "./public/icons/win/icon_512.ico",
+      "signAndEditExecutable": false
     },
     "files": [
       "./build/**/*",
       "./dist/**/*",
       "./node_modules/**/*",
       "./public/**/*",
+      "./src/**/*",
       "*.js"
     ],
     "linux": {
       "category": "Developer_tools",
+      "icon": "./public/icons/linux/icon_512.ico",
       "target": [
         "AppImage",
         "deb"
       ]
     },
     "directories": {
-      "buildResources": "public"
+      "buildResources": "./public"
+    },
+    "dmg": {
+      "icon": "./public/icons/mac/icon_512.icns"
     }
   }
 }

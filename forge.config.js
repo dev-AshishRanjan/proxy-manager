@@ -2,24 +2,38 @@ module.exports = {
   packagerConfig: {
     asar: true,
     executableName: "proxy-manager",
+    icon: "./public/icons/icon_512",
   },
   rebuildConfig: {},
   makers: [
     {
       name: "@electron-forge/maker-squirrel",
-      config: {},
+      config: {
+        icon: "./public/icons/win/icon_512.ico",
+      },
     },
     {
       name: "@electron-forge/maker-zip",
       platforms: ["darwin"],
+      config: {
+        icon: "./public/icons/mac/icon_512.icns",
+      },
     },
     {
       name: "@electron-forge/maker-deb",
-      config: {},
+      config: {
+        options: {
+          icon: "./public/icons/linux/icon_512.ico",
+        },
+      },
     },
     {
       name: "@electron-forge/maker-rpm",
-      config: {},
+      config: {
+        options: {
+          icon: "./public/icons/linux/icon_512.ico",
+        },
+      },
     },
   ],
   publishers: [
