@@ -139,7 +139,7 @@ const checkCurrentProxy = (callback) => {
         callback(linuxProxy, null);
       } else {
         // no proxy
-        callback(undefined, null);
+        callback(undefined, "No proxy");
       }
     } else {
       callback(currentProxy, null);

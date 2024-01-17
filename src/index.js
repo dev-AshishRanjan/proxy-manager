@@ -348,26 +348,34 @@ function setProxy(proxyServer, host, port) {
   const allCommands = [];
   const servicesUpdated = [];
   // git
-  exec("git --version", async (error, stdout, stderr) => {
-    if (error) {
-      console.error("Git error : ", stderr);
-    } else {
-      console.log({ stdout });
-      allCommands.push(`git config --global http.proxy ${proxyServer}`);
-      allCommands.push(`git config --global https.proxy ${proxyServer}`);
-      servicesUpdated.push(`git`);
-    }
+  const gitPromise = new Promise((resolve) => {
+    exec("git --version", (error, stdout, stderr) => {
+      if (error) {
+        console.error("Git error : ", stderr);
+        resolve();
+      } else {
+        console.log({ stdout });
+        allCommands.push(`git config --global http.proxy ${proxyServer}`);
+        allCommands.push(`git config --global https.proxy ${proxyServer}`);
+        servicesUpdated.push(`git`);
+        resolve();
+      }
+    });
   });
   // npm
-  exec("npm --version", async (error, stdout, stderr) => {
-    if (error) {
-      console.error("npm error : ", stderr);
-    } else {
-      console.log({ stdout });
-      allCommands.push(`npm config set proxy ${proxyServer}`);
-      allCommands.push(`npm config set https-proxy ${proxyServer}`);
-      servicesUpdated.push(`npm`);
-    }
+  const npmPromise = new Promise((resolve) => {
+    exec("npm --version", (error, stdout, stderr) => {
+      if (error) {
+        console.error("npm error : ", stderr);
+        resolve();
+      } else {
+        console.log({ stdout });
+        allCommands.push(`npm config set proxy ${proxyServer}`);
+        allCommands.push(`npm config set https-proxy ${proxyServer}`);
+        servicesUpdated.push(`npm`);
+        resolve();
+      }
+    });
   });
 
   if (process.platform === "win32") {
@@ -397,22 +405,24 @@ function setProxy(proxyServer, host, port) {
     console.error("Unsupported operating system");
     return;
   }
-  allCommands.map(
-    async (command) =>
-      await exec(command, async (error, stdout, stderr) => {
+  Promise.all([gitPromise, npmPromise]).then(() => {
+    allCommands.map((command) =>
+      exec(command, (error, stdout, stderr) => {
         if (error) {
           console.error("Got an Error : ", stderr);
-          await mainWindow.webContents.send("proxy:error", { msg: stderr });
+          mainWindow.webContents.send("proxy:error", { msg: stderr });
           return;
         }
         console.log({ stdout });
         console.log(`command executed successfully: ${command}`);
       })
-  );
-  process.env.HTTP_PROXY = proxyServer;
-  process.env.HTTPS_PROXY = proxyServer;
-  mainWindow.webContents.send("proxy:success", {
-    msg: `success : set system, ${servicesUpdated.join(", ")}`,
+    );
+    process.env.HTTP_PROXY = proxyServer;
+    process.env.HTTPS_PROXY = proxyServer;
+    console.log({ servicesUpdated });
+    mainWindow.webContents.send("proxy:success", {
+      msg: `success : set system, ${servicesUpdated.join(", ")}`,
+    });
   });
 }
 
@@ -420,28 +430,35 @@ function unsetProxy() {
   const allCommands = [];
   const servicesUpdated = [];
   // git
-  exec("git --version", async (error, stdout, stderr) => {
-    if (error) {
-      console.error("Git error : ", stderr);
-    } else {
-      console.log({ stdout });
-      allCommands.push(`git config --global --unset http.proxy`);
-      allCommands.push(`git config --global --unset https.proxy`);
-      servicesUpdated.push(`git`);
-    }
+  const gitPromise = new Promise((resolve) => {
+    exec("git --version", async (error, stdout, stderr) => {
+      if (error) {
+        console.error("Git error : ", stderr);
+        resolve();
+      } else {
+        console.log({ stdout });
+        allCommands.push(`git config --global --unset http.proxy`);
+        allCommands.push(`git config --global --unset https.proxy`);
+        servicesUpdated.push(`git`);
+        resolve();
+      }
+    });
   });
   // npm
-  exec("npm --version", async (error, stdout, stderr) => {
-    if (error) {
-      console.error("npm error : ", stderr);
-    } else {
-      console.log({ stdout });
-      allCommands.push(`npm config rm proxy`);
-      allCommands.push(`npm config rm https-proxy`);
-      servicesUpdated.push(`npm`);
-    }
+  const npmPromise = new Promise((resolve) => {
+    exec("npm --version", async (error, stdout, stderr) => {
+      if (error) {
+        console.error("npm error : ", stderr);
+        resolve();
+      } else {
+        console.log({ stdout });
+        allCommands.push(`npm config rm proxy`);
+        allCommands.push(`npm config rm https-proxy`);
+        servicesUpdated.push(`npm`);
+        resolve();
+      }
+    });
   });
-
   // Determine the operating system
   if (process.platform === "win32") {
     // Windows
@@ -462,25 +479,26 @@ function unsetProxy() {
     console.error("Unsupported operating system");
     return;
   }
+  Promise.all([gitPromise, npmPromise]).then(() => {
+    allCommands.map(
+      async (command) =>
+        await exec(command, async (error, stdout, stderr) => {
+          if (error) {
+            console.error("Got an Error : ", stderr);
+            await mainWindow.webContents.send("proxy:error", { msg: stderr });
+            return;
+          }
+          console.log({ stdout });
+          console.log(`command executed successfully: ${command}`);
+        })
+    );
 
-  allCommands.map(
-    async (command) =>
-      await exec(command, async (error, stdout, stderr) => {
-        if (error) {
-          console.error("Got an Error : ", stderr);
-          await mainWindow.webContents.send("proxy:error", { msg: stderr });
-          return;
-        }
-        console.log({ stdout });
-        console.log(`command executed successfully: ${command}`);
-      })
-  );
-
-  // Unset environment variables (HTTP_PROXY, HTTPS_PROXY)
-  delete process.env.HTTP_PROXY;
-  delete process.env.HTTPS_PROXY;
-  mainWindow.webContents.send("proxy:success", {
-    msg: `success : unset system, ${servicesUpdated.join(", ")}`,
+    // Unset environment variables (HTTP_PROXY, HTTPS_PROXY)
+    // delete process.env.HTTP_PROXY;
+    // delete process.env.HTTPS_PROXY;
+    mainWindow.webContents.send("proxy:success", {
+      msg: `success : unset system, ${servicesUpdated.join(", ")}`,
+    });
   });
 }
 
@@ -527,21 +545,22 @@ function setProxyForPip(proxyServer) {
         `pip config set global.proxy ${proxyServer}`,
         `pip config set global.trusted-host pypi.python.org`,
       ];
+      pipCommands.forEach(async (command) => {
+        exec(command, async (error, stdout, stderr) => {
+          if (error) {
+            console.error(`Error executing pip command: ${command}`, stderr);
+            await mainWindow.webContents.send("proxy:error", { msg: stderr });
+            return;
+          } else {
+            console.log(`pip command executed successfully: ${command}`);
+          }
+        });
+      });
+      await mainWindow.webContents.send("proxy:success", {
+        msg: "success : set pip",
+      });
     }
   });
-
-  pipCommands.forEach(async (command) => {
-    exec(command, async (error, stdout, stderr) => {
-      if (error) {
-        console.error(`Error executing pip command: ${command}`, stderr);
-        await mainWindow.webContents.send("proxy:error", { msg: stderr });
-        return;
-      } else {
-        console.log(`pip command executed successfully: ${command}`);
-      }
-    });
-  });
-  mainWindow.webContents.send("proxy:success", { msg: "success : set pip" });
 }
 
 function unsetProxyForVSCode() {
@@ -585,21 +604,22 @@ function unsetProxyForPip() {
         "pip config unset global.proxy",
         "pip config unset global.trusted-host",
       ];
+      pipCommands.forEach(async (command) => {
+        exec(command, async (error, stdout, stderr) => {
+          if (error) {
+            console.error(`Error executing pip command: ${command}`, stderr);
+            await mainWindow.webContents.send("proxy:error", { msg: stderr });
+            return;
+          } else {
+            console.log(`pip command executed successfully: ${command}`);
+          }
+        });
+      });
+      await mainWindow.webContents.send("proxy:success", {
+        msg: "success : unset pip",
+      });
     }
   });
-
-  pipCommands.forEach(async (command) => {
-    exec(command, async (error, stdout, stderr) => {
-      if (error) {
-        console.error(`Error executing pip command: ${command}`, stderr);
-        await mainWindow.webContents.send("proxy:error", { msg: stderr });
-        return;
-      } else {
-        console.log(`pip command executed successfully: ${command}`);
-      }
-    });
-  });
-  mainWindow.webContents.send("proxy:success", { msg: "success : unset pip" });
 }
 
 function setSystemEnvironmentVariables(proxyServer) {
@@ -625,6 +645,8 @@ function setSystemEnvironmentVariables(proxyServer) {
     mainWindow.webContents.send("proxy:success", {
       msg: "success : set system environment variables",
     });
+    process.env.HTTP_PROXY = proxyServer;
+    process.env.HTTPS_PROXY = proxyServer;
   } else {
     console.error(
       "Setting system environment variables is only supported on Windows."
@@ -639,18 +661,14 @@ function unsetSystemEnvironmentVariables() {
   // Determine the operating system
   if (process.platform === "win32") {
     // Windows
-    const commands = ['setx HTTP_PROXY ""', 'setx HTTPS_PROXY ""'];
-
-    if (process.env.HTTP_PROXY === "" && process.env.HTTPS_PROXY === "") {
-      console.log("Environment variables are already unset.");
-      return;
-    }
-
+    var commands = ['setx HTTP_PROXY ""', 'setx HTTPS_PROXY ""'];
     commands.forEach(async (command) => {
       exec(command, async (error, stdout, stderr) => {
         if (error) {
           console.error(`Error executing command: ${command}`, stderr);
-          await mainWindow.webContents.send("proxy:error", { msg: stderr });
+          await mainWindow.webContents.send("proxy:warning", {
+            msg: "No Enviroment Variable Present",
+          });
           return;
         } else {
           console.log(`Command executed successfully: ${command}`);
