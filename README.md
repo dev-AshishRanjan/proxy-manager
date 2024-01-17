@@ -62,3 +62,27 @@ A Proxy Manager build with Electronjs.
 </p>
 
 ## Go to [release section](https://github.com/dev-AshishRanjan/proxy-manager/releases) to get Proxy Manager for your PC
+
+## Installation
+
+1. Go to [release section](https://github.com/dev-AshishRanjan/proxy-manager/releases)
+2. Download the package format supported by your operating system
+
+- window : Proxy-Manager-1.0.7-Setup.exe
+- linux : proxy-manager_1.0.7_amd64.deb
+- mac : Proxy-Manager-darwin-x64-1.0.7.zip
+
+3. After download, install the package
+   > Remember during installation you will get warning
+   >
+   > > "Unverified Publisher" : This is due to lack code signing(paid), which I don't have
+   >
+   > Ignore this warning
+
+- step to ignore warning on window:
+  - click on **More info**
+    - ![1st](./1st.png)
+  - click on **Run Anyway**
+    - ![2nd](./second.png)
+
+4. After ignoring the warning, you can run Proxy Manager
