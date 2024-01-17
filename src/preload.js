@@ -110,6 +110,7 @@ const checkCurrentProxy = (callback) => {
       'reg query "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings" | find "ProxyServer"';
   } else if (process.platform === "linux") {
     proxyCommand = [
+      `gsettings get org.gnome.system.proxy mode`,
       `gsettings get org.gnome.system.proxy.http host`,
       `gsettings get org.gnome.system.proxy.http port`,
     ];
@@ -121,22 +122,23 @@ const checkCurrentProxy = (callback) => {
         return;
       }
 
-      const [host, port] = stdout
+      const [mode, host, port] = stdout
         .trim()
         .split("\n")
         .map((line) => line.trim());
 
       localStorage.setItem("stdout", stdout);
 
-      if (host === "''" || isNaN(port)) {
+      if (host === "''" || isNaN(port) || mode === "none") {
         // Proxy is not set or invalid
         console.log("Proxy is not set on Gnome");
         callback(undefined, null);
       } else {
         console.log("Proxy Settings:");
         console.log("Host:", host);
+        const ipAddress = host.replace(/'/g, "");
         console.log("Port:", port);
-        callback(`http://${host}:${port}`, null);
+        callback(`http://${ipAddress}:${port}`, null);
       }
     });
   } else if (process.platform === "darwin") {

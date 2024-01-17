@@ -230,6 +230,7 @@ const checkProxy = () => {
       'reg query "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings" | find "ProxyServer"';
   } else if (process.platform === "linux") {
     proxyCommand = [
+      `gsettings get org.gnome.system.proxy mode`,
       `gsettings get org.gnome.system.proxy.http host`,
       `gsettings get org.gnome.system.proxy.http port`,
     ];
@@ -244,20 +245,21 @@ const checkProxy = () => {
         });
       }
 
-      const [host, port] = stdout
+      const [mode, host, port] = stdout
         .trim()
         .split("\n")
         .map((line) => line.trim());
       var linuxProxy;
-      if (host === "''" || isNaN(port)) {
+      if (host === "''" || isNaN(port) || mode === "none") {
         // Proxy is not set or invalid
         console.log("Proxy is not set on Gnome");
         linuxProxy = undefined;
       } else {
         console.log("Proxy Settings:");
         console.log("Host:", host);
+        const ipAddress = host.replace(/'/g, "");
         console.log("Port:", port);
-        linuxProxy = `http://${host}:${port}`;
+        linuxProxy = `http://${ipAddress}:${port}`;
       }
       mainWindow.webContents.send("proxy:check:success", {
         msg: `current system proxy : ${linuxProxy}`,
