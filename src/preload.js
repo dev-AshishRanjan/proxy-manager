@@ -130,7 +130,20 @@ const checkCurrentProxy = (callback) => {
     const proxy = stdout.split(" ");
     const currentProxy = proxy[proxy.length - 1].trim();
     console.log({ currentProxy });
-    callback(currentProxy, null);
+    if (process.platform === "linux") {
+      // checking proxy
+      if (currentProxy.includes("HTTP_PROXY")) {
+        // proxy present
+        const temp = currentProxy.split("HTTP_PROXY=");
+        const linuxProxy = temp[temp.length - 1];
+        callback(linuxProxy, null);
+      } else {
+        // no proxy
+        callback(undefined, null);
+      }
+    } else {
+      callback(currentProxy, null);
+    }
   });
 };
 // checkCurrentProxy();

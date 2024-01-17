@@ -11,7 +11,10 @@ function handleClick() {
   }, 2500);
   setTimeout(() => {
     result.style.transform = "translateY(1rem)";
-    result.innerHTML = `current system proxy  <span>${currentProxy}</span>`;
+    result.innerHTML =
+      currentProxy === undefined
+        ? `current system proxy : <span>${"No Proxy"}</span>`
+        : `current system proxy  <span>${currentProxy}</span>`;
     checkBtn.style.animation = "none";
   }, 5000);
 }

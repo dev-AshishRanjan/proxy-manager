@@ -48,7 +48,7 @@ function renderCard(ele) {
     close.addEventListener("click", (e) => {
       proxy.proxyListDelete(ele.id);
       reRenderMainWindow();
-      fireToast("Removed from localstorage","success");
+      fireToast("Removed from localstorage", "success");
       e.stopPropagation();
     });
   ele.ipAddress && cardDiv.appendChild(proxyServer);
@@ -58,6 +58,10 @@ function renderCard(ele) {
   // cardDiv.classList.add("selected");
   proxy.checkCurrentProxy((proxy, error) => {
     if (error && ele.title === "Remove Proxy") {
+      console.error(error);
+      cardDiv.classList.add("selected");
+      return;
+    } else if (proxy === undefined && ele.title === "Remove Proxy") {
       console.error(error);
       cardDiv.classList.add("selected");
       return;

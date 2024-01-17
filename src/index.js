@@ -16,7 +16,7 @@ if (require("electron-squirrel-startup")) {
 }
 
 const isMac = process.platform === "darwin";
-const isDev = process.env.NODE_ENV === "development"; //change it to (!=="production")
+const isDev = process.env.NODE_ENV !== "development"; //change it to (!=="production")
 
 let mainWindow;
 let dynamicWindow;
@@ -208,14 +208,35 @@ const checkProxy = () => {
     const proxy = stdout.split(" ");
     const currentProxy = proxy[proxy.length - 1].trim();
     console.log({ currentProxy });
-    mainWindow.webContents.send("proxy:check:success", {
-      msg: `current system proxy : ${currentProxy}`,
-      proxy: currentProxy,
-    });
-    dynamicWindow.webContents.send("proxy:check:success", {
-      msg: `current system proxy : ${currentProxy}`,
-      proxy: currentProxy,
-    });
+    if (process.platform === "linux") {
+      // checking proxy
+      var linuxProxy;
+      if (currentProxy.includes("HTTP_PROXY")) {
+        // proxy present
+        const temp = currentProxy.split("HTTP_PROXY=");
+        linuxProxy = temp[temp.length - 1];
+      } else {
+        // no proxy
+        linuxProxy = undefined;
+      }
+      mainWindow.webContents.send("proxy:check:success", {
+        msg: `current system proxy : ${currentProxy}`,
+        proxy: linuxProxy,
+      });
+      dynamicWindow.webContents.send("proxy:check:success", {
+        msg: `current system proxy : ${currentProxy}`,
+        proxy: linuxProxy,
+      });
+    } else {
+      mainWindow.webContents.send("proxy:check:success", {
+        msg: `current system proxy : ${currentProxy}`,
+        proxy: currentProxy,
+      });
+      dynamicWindow.webContents.send("proxy:check:success", {
+        msg: `current system proxy : ${currentProxy}`,
+        proxy: currentProxy,
+      });
+    }
     // localStorage.setItem("currentProxy", currentProxy);
 
     // Save the proxy settings in electron-settings

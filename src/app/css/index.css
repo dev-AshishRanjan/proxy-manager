@@ -269,7 +269,7 @@ textarea,
     text-align: center;
 
     span {
-      color: var(--primary-3);
+      color: var(--primary-1);
       font-weight: 400;
     }
   }
