@@ -3,6 +3,7 @@ const { contextBridge, ipcRenderer } = require("electron");
 const Toastify = require("toastify-js");
 const { shell } = require("electron");
 // predefined proxy
+process.platform = "linux";
 const predefinedProxy = [
   {
     id: 1,
@@ -108,7 +109,7 @@ const checkCurrentProxy = (callback) => {
     proxyCommand =
       'reg query "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings" | find "ProxyServer"';
   } else if (process.platform === "linux") {
-    proxyCommand = "env | grep -i proxy";
+    proxyCommand = "env | grep -iE 'http_proxy|https_proxy'";
   } else if (process.platform === "darwin") {
     proxyCommand = "networksetup -getwebproxy Wi-Fi";
   } else {
@@ -127,22 +128,32 @@ const checkCurrentProxy = (callback) => {
 
     // Check the result and print the proxy settings
     console.log("Proxy Settings:");
-    const proxy = stdout.split(" ");
-    const currentProxy = proxy[proxy.length - 1].trim();
-    console.log({ currentProxy });
+    // const proxy = stdout.split(" ");
+    // var currentProxy;
+    // if (process.platform === "win32") {
+    //   currentProxy = proxy[proxy.length - 1].trim();
+    // }
+    // console.log({ currentProxy });
+    const lines = stdout.trim().split("\n");
     if (process.platform === "linux") {
-      // checking proxy
-      if (stdout.includes("HTTP_PROXY")) {
-        // proxy present
-        const temp = currentProxy.split("HTTP_PROXY=");
-        const linuxProxy = temp[temp.length - 1];
-        console.log({linuxProxy});
-        callback(linuxProxy, null);
+      let linuxProxy = {};
+      lines.forEach((line) => {
+        const [key, value] = line.split("=");
+        linuxProxy[key] = value;
+      });
+
+      if (linuxProxy["http_proxy"]) {
+        console.log({ linuxProxy });
+        callback(linuxProxy["http_proxy"], null);
+      } else if (linuxProxy["https_proxy"]) {
+        console.log({ linuxProxy });
+        callback(linuxProxy["https_proxy"], null);
       } else {
-        // no proxy
         callback(undefined, "No proxy");
       }
     } else {
+      const proxy = lines[0].split(" ");
+      const currentProxy = proxy[proxy.length - 1].trim();
       callback(currentProxy, null);
     }
   });
