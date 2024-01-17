@@ -45,7 +45,7 @@ const createWindow = () => {
   mainWindow.on("closed", () => {
     // Close all windows when the main window is closed
     if (dynamicWindow) {
-      dynamicWindow.close();
+      dynamicWindow = null;
     }
     if (!isMac) {
       app.quit();
@@ -70,6 +70,28 @@ const createDynamicWindow = (file) => {
   dynamicWindow.setIcon(path.join(__dirname, "./assets/icons/icon_512.png"));
   // and load the index.html of the app.
   dynamicWindow.loadFile(path.join(__dirname, `./app/${file}`));
+  if (isDev) {
+    dynamicWindow.webContents.openDevTools();
+  }
+};
+
+const createURLWindow = (file) => {
+  dynamicWindow = new BrowserWindow({
+    width: isDev ? 1000 : 550,
+    height: 600,
+    webPreferences: {
+      preload: path.join(__dirname, "preload.js"),
+      nodeIntegration: true,
+      contextIsolation: true,
+    },
+    fullscreenable: false,
+    resizable: false,
+    icon: path.join(__dirname, "./assets/icons/icon_512.png"),
+  });
+
+  dynamicWindow.setIcon(path.join(__dirname, "./assets/icons/icon_512.png"));
+  // and load the index.html of the app.
+  dynamicWindow.loadURL("https://aethernex.vercel.app");
   if (isDev) {
     dynamicWindow.webContents.openDevTools();
   }
@@ -111,6 +133,11 @@ const menu = [
               label: "Check System Proxy",
               click: () => createDynamicWindow("checkProxy.html"),
               accelerator: "CmdOrCtrl+p",
+            },
+            {
+              label: "Check Internet Speed",
+              click: () => createURLWindow(),
+              accelerator: "CmdOrCtrl+f",
             },
             {
               label: "Add Custom Proxy",
@@ -155,6 +182,11 @@ const menu = [
               label: "Check System Proxy",
               click: () => createDynamicWindow("checkProxy.html"),
               accelerator: "CmdOrCtrl+p",
+            },
+            {
+              label: "Check Internet Speed",
+              click: () => createURLWindow(),
+              accelerator: "CmdOrCtrl+f",
             },
             {
               label: "Add Custom Proxy",
