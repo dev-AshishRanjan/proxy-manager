@@ -362,14 +362,16 @@ function setProxy(proxyServer, host, port) {
   const servicesUpdated = [];
   // git
   const gitPromise = new Promise((resolve) => {
-    exec("git --version", (error, stdout, stderr) => {
+    exec("git --version", async (error, stdout, stderr) => {
       if (error) {
         console.error("Git error : ", stderr);
         resolve();
       } else {
         console.log({ stdout });
-        allCommands.push(`git config --global http.proxy ${proxyServer}`);
-        allCommands.push(`git config --global https.proxy ${proxyServer}`);
+        // allCommands.push(`git config --global http.proxy ${proxyServer}`);
+        // allCommands.push(`git config --global https.proxy ${proxyServer}`);
+        await execPromise(`git config --global http.proxy ${proxyServer}`);
+        await execPromise(`git config --global https.proxy ${proxyServer}`);
         servicesUpdated.push(`git`);
         resolve();
       }
@@ -454,8 +456,10 @@ function unsetProxy() {
         resolve();
       } else {
         console.log({ stdout });
-        allCommands.push(`git config --global --unset http.proxy`);
-        allCommands.push(`git config --global --unset https.proxy`);
+        // allCommands.push(`git config --global --unset http.proxy`);
+        // allCommands.push(`git config --global --unset https.proxy`);
+        await execPromise(`git config --global --unset http.proxy`);
+        await execPromise(`git config --global --unset https.proxy`);
         servicesUpdated.push(`git`);
         resolve();
       }
