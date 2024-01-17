@@ -229,7 +229,45 @@ const checkProxy = () => {
     proxyCommand =
       'reg query "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings" | find "ProxyServer"';
   } else if (process.platform === "linux") {
-    proxyCommand = "env | grep -i proxy";
+    proxyCommand = [
+      `gsettings get org.gnome.system.proxy.http host`,
+      `gsettings get org.gnome.system.proxy.http port`,
+    ];
+    exec(proxyCommand.join(" && "), (error, stdout, stderr) => {
+      if (error) {
+        console.error("Error checking Gnome proxy settings:", stderr);
+        mainWindow.webContents.send("proxy:check:error", {
+          msg: `error : ${stderr}`,
+        });
+        dynamicWindow.webContents.send("proxy:check:error", {
+          msg: `error : ${stderr}`,
+        });
+      }
+
+      const [host, port] = stdout
+        .trim()
+        .split("\n")
+        .map((line) => line.trim());
+      var linuxProxy;
+      if (host === "''" || isNaN(port)) {
+        // Proxy is not set or invalid
+        console.log("Proxy is not set on Gnome");
+        linuxProxy = undefined;
+      } else {
+        console.log("Proxy Settings:");
+        console.log("Host:", host);
+        console.log("Port:", port);
+        linuxProxy = `http://${host}:${port}`;
+      }
+      mainWindow.webContents.send("proxy:check:success", {
+        msg: `current system proxy : ${linuxProxy}`,
+        proxy: linuxProxy,
+      });
+      dynamicWindow.webContents.send("proxy:check:success", {
+        msg: `current system proxy : ${linuxProxy}`,
+        proxy: linuxProxy,
+      });
+    });
   } else if (process.platform === "darwin") {
     proxyCommand = "networksetup -getwebproxy Wi-Fi";
   } else {
@@ -244,57 +282,40 @@ const checkProxy = () => {
   }
 
   // Execute the proxy command
-  exec(proxyCommand, (error, stdout, stderr) => {
-    if (error) {
-      console.error("Error checking proxy settings:", stderr);
-      mainWindow.webContents.send("proxy:check:error", {
-        msg: `error : ${stderr}`,
-      });
-      dynamicWindow.webContents.send("proxy:check:error", {
-        msg: `error : ${stderr}`,
-      });
-      return;
-    }
-
-    // Check the result and print the proxy settings
-    console.log("Proxy Settings:");
-    const proxy = stdout.split(" ");
-    const currentProxy = proxy[proxy.length - 1].trim();
-    console.log({ currentProxy });
-    if (process.platform === "linux") {
-      // checking proxy
-      var linuxProxy;
-      if (currentProxy.includes("HTTP_PROXY")) {
-        // proxy present
-        const temp = currentProxy.split("HTTP_PROXY=");
-        linuxProxy = temp[temp.length - 1];
-      } else {
-        // no proxy
-        linuxProxy = undefined;
+  if (process.platform !== "linux") {
+    exec(proxyCommand, (error, stdout, stderr) => {
+      if (error) {
+        console.error("Error checking proxy settings:", stderr);
+        mainWindow.webContents.send("proxy:check:error", {
+          msg: `error : ${stderr}`,
+        });
+        dynamicWindow.webContents.send("proxy:check:error", {
+          msg: `error : ${stderr}`,
+        });
+        return;
       }
-      mainWindow.webContents.send("proxy:check:success", {
-        msg: `current system proxy : ${linuxProxy}`,
-        proxy: linuxProxy,
-      });
-      dynamicWindow.webContents.send("proxy:check:success", {
-        msg: `current system proxy : ${linuxProxy}`,
-        proxy: linuxProxy,
-      });
-    } else {
-      mainWindow.webContents.send("proxy:check:success", {
-        msg: `current system proxy : ${currentProxy}`,
-        proxy: currentProxy,
-      });
-      dynamicWindow.webContents.send("proxy:check:success", {
-        msg: `current system proxy : ${currentProxy}`,
-        proxy: currentProxy,
-      });
-    }
-    // localStorage.setItem("currentProxy", currentProxy);
 
-    // Save the proxy settings in electron-settings
-    // settings.set("currentProxy", currentProxy);
-  });
+      // Check the result and print the proxy settings
+      console.log("Proxy Settings:");
+      const proxy = stdout.split(" ");
+      const currentProxy = proxy[proxy.length - 1].trim();
+      console.log({ currentProxy });
+
+      mainWindow.webContents.send("proxy:check:success", {
+        msg: `current system proxy : ${currentProxy}`,
+        proxy: currentProxy,
+      });
+      dynamicWindow.webContents.send("proxy:check:success", {
+        msg: `current system proxy : ${currentProxy}`,
+        proxy: currentProxy,
+      });
+
+      // localStorage.setItem("currentProxy", currentProxy);
+
+      // Save the proxy settings in electron-settings
+      // settings.set("currentProxy", currentProxy);
+    });
+  }
 };
 
 // This method will be called when Electron has finished
