@@ -641,6 +641,11 @@ function unsetSystemEnvironmentVariables() {
     // Windows
     const commands = ['setx HTTP_PROXY ""', 'setx HTTPS_PROXY ""'];
 
+    if (process.env.HTTP_PROXY === "" && process.env.HTTPS_PROXY === "") {
+      console.log("Environment variables are already unset.");
+      return;
+    }
+
     commands.forEach(async (command) => {
       exec(command, async (error, stdout, stderr) => {
         if (error) {
