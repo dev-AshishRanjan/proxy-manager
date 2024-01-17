@@ -85,6 +85,7 @@ const createURLWindow = (file) => {
       contextIsolation: true,
     },
     fullscreenable: false,
+    autoHideMenuBar: true,
     resizable: false,
     icon: path.join(__dirname, "./assets/icons/icon_512.png"),
   });
@@ -345,12 +346,29 @@ ipcMain.on("custom-form:accepted", (e, options) => {
 function setProxy(proxyServer, host, port) {
   console.log(proxyServer);
   const allCommands = [];
+  const servicesUpdated = [];
   // git
-  allCommands.push(`git config --global http.proxy ${proxyServer}`);
-  allCommands.push(`git config --global https.proxy ${proxyServer}`);
+  exec("git --version", async (error, stdout, stderr) => {
+    if (error) {
+      console.error("Git error : ", stderr);
+    } else {
+      console.log({ stdout });
+      allCommands.push(`git config --global http.proxy ${proxyServer}`);
+      allCommands.push(`git config --global https.proxy ${proxyServer}`);
+      servicesUpdated.push(`git`);
+    }
+  });
   // npm
-  allCommands.push(`npm config set proxy ${proxyServer}`);
-  allCommands.push(`npm config set https-proxy ${proxyServer}`);
+  exec("npm --version", async (error, stdout, stderr) => {
+    if (error) {
+      console.error("npm error : ", stderr);
+    } else {
+      console.log({ stdout });
+      allCommands.push(`npm config set proxy ${proxyServer}`);
+      allCommands.push(`npm config set https-proxy ${proxyServer}`);
+      servicesUpdated.push(`npm`);
+    }
+  });
 
   if (process.platform === "win32") {
     // Windows
@@ -394,18 +412,35 @@ function setProxy(proxyServer, host, port) {
   process.env.HTTP_PROXY = proxyServer;
   process.env.HTTPS_PROXY = proxyServer;
   mainWindow.webContents.send("proxy:success", {
-    msg: "success : set system,npm,git",
+    msg: `success : set system, ${servicesUpdated.join(", ")}`,
   });
 }
 
 function unsetProxy() {
   const allCommands = [];
+  const servicesUpdated = [];
   // git
-  allCommands.push(`git config --global --unset http.proxy`);
-  allCommands.push(`git config --global --unset https.proxy`);
+  exec("git --version", async (error, stdout, stderr) => {
+    if (error) {
+      console.error("Git error : ", stderr);
+    } else {
+      console.log({ stdout });
+      allCommands.push(`git config --global --unset http.proxy`);
+      allCommands.push(`git config --global --unset https.proxy`);
+      servicesUpdated.push(`git`);
+    }
+  });
   // npm
-  allCommands.push(`npm config rm proxy`);
-  allCommands.push(`npm config rm https-proxy`);
+  exec("npm --version", async (error, stdout, stderr) => {
+    if (error) {
+      console.error("npm error : ", stderr);
+    } else {
+      console.log({ stdout });
+      allCommands.push(`npm config rm proxy`);
+      allCommands.push(`npm config rm https-proxy`);
+      servicesUpdated.push(`npm`);
+    }
+  });
 
   // Determine the operating system
   if (process.platform === "win32") {
@@ -445,7 +480,7 @@ function unsetProxy() {
   delete process.env.HTTP_PROXY;
   delete process.env.HTTPS_PROXY;
   mainWindow.webContents.send("proxy:success", {
-    msg: "success : unset system,npm,git",
+    msg: `success : unset system, ${servicesUpdated.join(", ")}`,
   });
 }
 
@@ -478,10 +513,22 @@ function setProxyForVSCode(proxyServer) {
 }
 
 function setProxyForPip(proxyServer) {
-  const pipCommands = [
-    `pip config set global.proxy ${proxyServer}`,
-    `pip config set global.trusted-host pypi.python.org`,
-  ];
+  var pipCommands = [];
+  exec("pip --version", async (error, stdout, stderr) => {
+    if (error) {
+      console.error("pip error : ", stderr);
+      // mainWindow.webContents.send("proxy:warning", {
+      //   msg: "info: pip not found",
+      // });
+      return;
+    } else {
+      console.log({ stdout });
+      pipCommands = [
+        `pip config set global.proxy ${proxyServer}`,
+        `pip config set global.trusted-host pypi.python.org`,
+      ];
+    }
+  });
 
   pipCommands.forEach(async (command) => {
     exec(command, async (error, stdout, stderr) => {
@@ -524,10 +571,22 @@ function unsetProxyForVSCode() {
 }
 
 function unsetProxyForPip() {
-  const pipCommands = [
-    "pip config unset global.proxy",
-    "pip config unset global.trusted-host",
-  ];
+  var pipCommands = [];
+  exec("pip --version", async (error, stdout, stderr) => {
+    if (error) {
+      console.error("pip error : ", stderr);
+      // mainWindow.webContents.send("proxy:warning", {
+      //   msg: "info: pip not found",
+      // });
+      return;
+    } else {
+      console.log({ stdout });
+      pipCommands = [
+        "pip config unset global.proxy",
+        "pip config unset global.trusted-host",
+      ];
+    }
+  });
 
   pipCommands.forEach(async (command) => {
     exec(command, async (error, stdout, stderr) => {
