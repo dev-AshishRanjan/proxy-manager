@@ -33,6 +33,7 @@ const createWindow = () => {
     },
     // autoHideMenuBar: true,
     icon: path.join(__dirname, "./assets/icons/icon_512.png"),
+    roundedCorners: true,
   });
   mainWindow.setIcon(path.join(__dirname, "./assets/icons/icon_512.png"));
   // and load the index.html of the app.
@@ -65,6 +66,7 @@ const createDynamicWindow = (file) => {
     fullscreenable: false,
     resizable: false,
     icon: path.join(__dirname, "./assets/icons/icon_512.png"),
+    roundedCorners: true,
   });
 
   dynamicWindow.setIcon(path.join(__dirname, "./assets/icons/icon_512.png"));
@@ -88,6 +90,7 @@ const createURLWindow = (file) => {
     autoHideMenuBar: true,
     resizable: false,
     icon: path.join(__dirname, "./assets/icons/icon_512.png"),
+    roundedCorners: true,
   });
 
   dynamicWindow.setIcon(path.join(__dirname, "./assets/icons/icon_512.png"));
@@ -206,6 +209,11 @@ const menu = [
               click: () => createURLWindow(),
               accelerator: "CmdOrCtrl+F",
             },
+            {
+              label: "Open Dev Tools",
+              click: () => mainWindow.webContents.openDevTools(),
+              accelerator: "CmdOrCtrl+O",
+            },
           ],
         },
       ]
@@ -265,11 +273,11 @@ const checkProxy = () => {
         linuxProxy = undefined;
       }
       mainWindow.webContents.send("proxy:check:success", {
-        msg: `current system proxy : ${currentProxy}`,
+        msg: `current system proxy : ${linuxProxy}`,
         proxy: linuxProxy,
       });
       dynamicWindow.webContents.send("proxy:check:success", {
-        msg: `current system proxy : ${currentProxy}`,
+        msg: `current system proxy : ${linuxProxy}`,
         proxy: linuxProxy,
       });
     } else {
