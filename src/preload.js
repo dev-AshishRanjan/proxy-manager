@@ -109,7 +109,7 @@ const checkCurrentProxy = (callback) => {
     proxyCommand =
       'reg query "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings" | find "ProxyServer"';
   } else if (process.platform === "linux") {
-    proxyCommand = "env | grep -iE 'http_proxy|https_proxy'";
+    proxyCommand = `gsettings get org.gnome.system.proxy.http`;
   } else if (process.platform === "darwin") {
     proxyCommand = "networksetup -getwebproxy Wi-Fi";
   } else {
@@ -121,6 +121,7 @@ const checkCurrentProxy = (callback) => {
   // Execute the proxy command
   exec(proxyCommand, (error, stdout, stderr) => {
     if (error) {
+      console.log({ error });
       console.error("Error checking proxy settings:", stderr);
       callback(null, `Error checking proxy settings: ${stderr}`);
       return;
@@ -128,32 +129,37 @@ const checkCurrentProxy = (callback) => {
 
     // Check the result and print the proxy settings
     console.log("Proxy Settings:");
-    // const proxy = stdout.split(" ");
+    console.log({ stdout });
+    localStorage.setItem("stdout", stdout);
     // var currentProxy;
-    // if (process.platform === "win32") {
-    //   currentProxy = proxy[proxy.length - 1].trim();
-    // }
-    // console.log({ currentProxy });
-    const lines = stdout.trim().split("\n");
     if (process.platform === "linux") {
-      let linuxProxy = {};
-      lines.forEach((line) => {
-        const [key, value] = line.split("=");
-        linuxProxy[key] = value;
-      });
-
-      if (linuxProxy["http_proxy"]) {
-        console.log({ linuxProxy });
-        callback(linuxProxy["http_proxy"], null);
-      } else if (linuxProxy["https_proxy"]) {
-        console.log({ linuxProxy });
-        callback(linuxProxy["https_proxy"], null);
+      // checking proxy
+      var linuxProxy;
+      const proxySetting = stdout.trim();
+      if (proxySetting === "''") {
+        // Proxy is not set
+        console.log("Proxy is not set on Gnome");
+        linuxProxy = undefined;
       } else {
-        callback(undefined, "No proxy");
+        const match = proxySetting.match(/'([^']+)'\s+'(\d+)'/);
+        if (!match) {
+          console.error("Error parsing Gnome proxy setting:", proxySetting);
+          linuxProxy = undefined;
+          throw new Error("Error parsing Gnome proxy setting:match");
+        } else {
+          const temp = currentProxy.split(" ");
+          localStorage.setItem("temp", temp);
+          localStorage.setItem("using match", `http://${match[1]}:${match[2]}`);
+          linuxProxy = `http://${match[1]}:${match[2]}`;
+        }
       }
+      callback(linuxProxy, null);
+      return;
     } else {
-      const proxy = lines[0].split(" ");
+      const proxy = stdout.split(" ");
+      console.log({ proxy });
       const currentProxy = proxy[proxy.length - 1].trim();
+      console.log({ currentProxy });
       callback(currentProxy, null);
     }
   });
