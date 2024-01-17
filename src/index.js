@@ -342,6 +342,19 @@ ipcMain.on("custom-form:accepted", (e, options) => {
   });
 });
 
+// Promisified exec function
+const execPromise = (command) => {
+  return new Promise((resolve, reject) => {
+    exec(command, (error, stdout, stderr) => {
+      if (error) {
+        reject({ command, error, stderr });
+      } else {
+        resolve({ command, stdout });
+      }
+    });
+  });
+};
+
 // change proxy and send using webcontents
 function setProxy(proxyServer, host, port) {
   console.log(proxyServer);
@@ -364,14 +377,16 @@ function setProxy(proxyServer, host, port) {
   });
   // npm
   const npmPromise = new Promise((resolve) => {
-    exec("npm --version", (error, stdout, stderr) => {
+    exec("npm --version", async (error, stdout, stderr) => {
       if (error) {
         console.error("npm error : ", stderr);
         resolve();
       } else {
         console.log({ stdout });
         allCommands.push(`npm config set proxy ${proxyServer}`);
+        await execPromise(`npm config set proxy ${proxyServer}`);
         allCommands.push(`npm config set https-proxy ${proxyServer}`);
+        await execPromise(`npm config set https-proxy ${proxyServer}`);
         servicesUpdated.push(`npm`);
         resolve();
       }
@@ -426,6 +441,8 @@ function setProxy(proxyServer, host, port) {
   });
 }
 
+// console.log({ lol: process.env.HTTPS_PROXY });
+
 function unsetProxy() {
   const allCommands = [];
   const servicesUpdated = [];
@@ -452,8 +469,10 @@ function unsetProxy() {
         resolve();
       } else {
         console.log({ stdout });
-        allCommands.push(`npm config rm proxy`);
-        allCommands.push(`npm config rm https-proxy`);
+        // allCommands.push(`npm config rm proxy`);
+        await execPromise(`npm config rm proxy`);
+        // allCommands.push(`npm config rm https-proxy`);
+        await execPromise(`npm config rm https-proxy`);
         servicesUpdated.push(`npm`);
         resolve();
       }
@@ -494,8 +513,8 @@ function unsetProxy() {
     );
 
     // Unset environment variables (HTTP_PROXY, HTTPS_PROXY)
-    // delete process.env.HTTP_PROXY;
-    // delete process.env.HTTPS_PROXY;
+    delete process.env.HTTP_PROXY;
+    delete process.env.HTTPS_PROXY;
     mainWindow.webContents.send("proxy:success", {
       msg: `success : unset system, ${servicesUpdated.join(", ")}`,
     });
