@@ -15,6 +15,7 @@ function initialRenderMainWindow() {
     renderCard(ele);
   });
 }
+
 function reRenderMainWindow() {
   var proxyListParsed = proxy.checkProxyList();
   const noProxy = { title: "Remove Proxy" };
@@ -27,8 +28,10 @@ function reRenderMainWindow() {
   const vars = document.querySelectorAll(".card");
   console.log({ vars });
 }
+
 initialRenderMainWindow();
 // reRenderMainWindow();
+
 function renderCard(ele) {
   spinner.style.display = "none";
   let cardDiv = document.createElement("div");
@@ -60,16 +63,28 @@ function renderCard(ele) {
     if (error && ele.title === "Remove Proxy") {
       console.error(error);
       cardDiv.classList.add("selected");
+      const ripple=document.createElement("span");
+      ripple.classList.add("ripple");
+      // ripple.innerText="✔️"
+      cardDiv.appendChild(ripple);
       return;
     } else if (proxy === undefined && ele.title === "Remove Proxy") {
       console.error(error);
       cardDiv.classList.add("selected");
+      const ripple=document.createElement("span");
+      ripple.classList.add("ripple");
+      // ripple.innerText="✔️"
+      cardDiv.appendChild(ripple);
       return;
     } else if (
       ele.ipAddress == proxy.split(":")[0] &&
       ele.port == proxy.split(":")[1]
     ) {
       cardDiv.classList.add("selected");
+      const ripple=document.createElement("span");
+      ripple.classList.add("ripple");
+      // ripple.innerText="✔️"
+      cardDiv.appendChild(ripple);
     }
   });
   proxyCards && proxyCards.appendChild(cardDiv);

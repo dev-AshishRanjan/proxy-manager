@@ -107,6 +107,29 @@ body {
 .selected {
   background: var(--primary-2) !important;
   border: 1px solid var(--primary-3) !important;
+
+  .ripple {
+    height: 1rem;
+    width: 1rem;
+    border-radius: 50%;
+    position: absolute;
+    top: -0.5rem;
+    left: 0.5rem;
+    z-index: 2;
+    background: var(--primary-3);
+    animation: 1.5s ripple infinite ease-in-out;
+    
+  }
+}
+
+@keyframes ripple {
+  0% {
+    box-shadow: 0 0 0 0 var(--primary-3);
+  }
+
+  100% {
+    box-shadow: 0 0 0 15px var(--card);
+  }
 }
 
 /* toast */
