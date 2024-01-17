@@ -504,10 +504,14 @@ function setSystemEnvironmentVariables(proxyServer) {
         if (error) {
           console.error(`Error executing command: ${command}`, stderr);
           await mainWindow.webContents.send("proxy:error", { msg: stderr });
+          return;
         } else {
           console.log(`Command executed successfully: ${command}`);
         }
       });
+    });
+    mainWindow.webContents.send("proxy:success", {
+      msg: "success : set system environment variables",
     });
   } else {
     console.error(
@@ -517,9 +521,6 @@ function setSystemEnvironmentVariables(proxyServer) {
       msg: "warning : system environment variables is only supported on Windows",
     });
   }
-  mainWindow.webContents.send("proxy:success", {
-    msg: "success : set system environment variables",
-  });
 }
 
 function unsetSystemEnvironmentVariables() {
@@ -533,10 +534,14 @@ function unsetSystemEnvironmentVariables() {
         if (error) {
           console.error(`Error executing command: ${command}`, stderr);
           await mainWindow.webContents.send("proxy:error", { msg: stderr });
+          return;
         } else {
           console.log(`Command executed successfully: ${command}`);
         }
       });
+    });
+    mainWindow.webContents.send("proxy:success", {
+      msg: "success : unset system environment variables",
     });
   } else {
     console.error(
@@ -546,7 +551,4 @@ function unsetSystemEnvironmentVariables() {
       msg: "warning : system environment variables is only supported on Windows",
     });
   }
-  mainWindow.webContents.send("proxy:success", {
-    msg: "success : unset system environment variables",
-  });
 }
