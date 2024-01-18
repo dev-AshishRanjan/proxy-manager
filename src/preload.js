@@ -138,7 +138,7 @@ const checkCurrentProxy = (callback) => {
         console.log("Host:", host);
         const ipAddress = host.replace(/'/g, "");
         console.log("Port:", port);
-        callback(`http://${ipAddress}:${port}`, null);
+        callback(`${ipAddress}:${port}`, null);
       }
     });
   } else if (process.platform === "darwin") {

@@ -259,7 +259,7 @@ const checkProxy = () => {
         console.log("Host:", host);
         const ipAddress = host.replace(/'/g, "");
         console.log("Port:", port);
-        linuxProxy = `http://${ipAddress}:${port}`;
+        linuxProxy = `${ipAddress}:${port}`;
       }
       mainWindow.webContents.send("proxy:check:success", {
         msg: `current system proxy : ${linuxProxy}`,
