@@ -7,6 +7,7 @@ var currentProxy;
 spinner.style.display = "block";
 // ipcRenderer.send("proxy:check");
 function initialRenderMainWindow() {
+  spinner.style.display = "none";
   var proxyListParsed = proxy.checkProxyList();
   const noProxy = { title: "Remove Proxy" };
   renderCard(noProxy);
@@ -17,6 +18,7 @@ function initialRenderMainWindow() {
 }
 
 function reRenderMainWindow() {
+  spinner.style.display = "none";
   var proxyListParsed = proxy.checkProxyList();
   const noProxy = { title: "Remove Proxy" };
   proxyCards ? (proxyCards.innerHTML = "") : null;
@@ -60,7 +62,7 @@ function renderCard(ele) {
     : cardDiv.addEventListener("click", () => handleProxyRemove());
   // cardDiv.classList.add("selected");
   proxy.checkCurrentProxy((proxy, error) => {
-    if ((proxy === undefined||error) && ele.title === "Remove Proxy") {
+    if ((proxy === undefined || error) && ele.title === "Remove Proxy") {
       console.error(error);
       cardDiv.classList.add("selected");
       const ripple = document.createElement("span");
@@ -145,12 +147,16 @@ function fireToast(message, type = info) {
 window.ipcRenderer.on("proxy:success", (e, options) => {
   console.log({ e });
   fireToast(e.msg, "success");
-  reRenderMainWindow();
+  setTimeout(() => {
+    reRenderMainWindow();
+  }, 500);
 });
 window.ipcRenderer.on("proxy:error", (e, options) => {
   console.log({ e });
   fireToast(e.msg, "error");
-  reRenderMainWindow();
+  setTimeout(() => {
+    reRenderMainWindow();
+  }, 500);
 });
 window.ipcRenderer.on("proxy:warning", (e, options) => {
   console.log({ e });

@@ -67,6 +67,7 @@ const createDynamicWindow = (file) => {
     resizable: false,
     icon: path.join(__dirname, "./assets/icons/icon_512.png"),
     roundedCorners: true,
+    autoHideMenuBar: true,
   });
 
   dynamicWindow.setIcon(path.join(__dirname, "./assets/icons/icon_512.png"));
@@ -717,9 +718,9 @@ function setSystemEnvironmentVariables(proxyServer) {
     console.error(
       "Setting system environment variables is only supported on Windows."
     );
-    mainWindow.webContents.send("proxy:warning", {
-      msg: "warning : system environment variables is only supported on Windows",
-    });
+    // mainWindow.webContents.send("proxy:warning", {
+    //   msg: "warning : system environment variables is only supported on Windows",
+    // });
   }
 }
 
@@ -748,8 +749,8 @@ function unsetSystemEnvironmentVariables() {
     console.error(
       "Unsetting system environment variables is only supported on Windows."
     );
-    mainWindow.webContents.send("proxy:warning", {
-      msg: "warning : system environment variables is only supported on Windows",
-    });
+    // mainWindow.webContents.send("proxy:warning", {
+    //   msg: "warning : system environment variables is only supported on Windows",
+    // });
   }
 }
