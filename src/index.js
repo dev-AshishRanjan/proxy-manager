@@ -8,6 +8,8 @@ const {
 } = require("electron");
 const path = require("path");
 const { exec } = require("child_process");
+const { updateElectronApp } = require("update-electron-app");
+updateElectronApp();
 // const settings = require("electron-settings");
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
@@ -801,7 +803,7 @@ function unsetSystemEnvironmentVariables() {
 
 async function setLinuxAllProxy(host, port) {
   const proxyserver = `http://${host}:${port}`;
-  const commandsEnv = `$echo ${proxyManagerSudo} | sudo -S tee -a /etc/environment << EOF
+  const commandsEnv = `echo ${proxyManagerSudo} | sudo -S tee -a /etc/environment << EOF
   http_proxy=${proxyserver}
   https_proxy=${proxyserver}
   ftp_proxy=${proxyserver}
@@ -811,10 +813,10 @@ async function setLinuxAllProxy(host, port) {
   FTP_PROXY=${proxyserver}
   NO_PROXY="localhost,127.0.0.1,localaddress,.localdomain.com,127.0.0.0/8,::1"
 EOF`;
-  const commandsApt = `$echo ${proxyManagerSudo} | sudo -S tee /etc/apt/apt.conf.d/proxyManager << EOF
-    Acquire::http::proxy "http://${host}:${post}/";
-    Acquire::ftp::proxy "ftp://${host}:${post}/";
-    Acquire::https::proxy "https://${host}:${post}/";
+  const commandsApt = `echo ${proxyManagerSudo} | sudo -S tee /etc/apt/apt.conf.d/proxyManager << EOF
+    Acquire::http::proxy "http://${host}:${port}/";
+    Acquire::ftp::proxy "ftp://${host}:${port}/";
+    Acquire::https::proxy "https://${host}:${port}/";
 EOF`;
   await execPromise(commandsEnv);
   await execPromise(commandsApt);
@@ -822,11 +824,11 @@ EOF`;
 
 async function unsetLinuxAllProxy() {
   // const proxyserver = `http://${host}:${port}`;
-  const commandsEnv = `$echo ${proxyManagerSudo} | sudo -S rm /etc/environment &&
-  $echo ${proxyManagerSudo} | sudo -S tee /etc/environment << EOF
+  const commandsEnv = `echo ${proxyManagerSudo} | sudo -S rm /etc/environment &&
+  echo ${proxyManagerSudo} | sudo -S tee /etc/environment << EOF
   PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games"
 EOF`;
-  const commandsApt = `$echo ${proxyManagerSudo} | sudo -S rm /etc/apt/apt.conf.d/proxyManager`;
+  const commandsApt = `echo ${proxyManagerSudo} | sudo -S rm /etc/apt/apt.conf.d/proxyManager`;
   await execPromise(commandsEnv);
   await execPromise(commandsApt);
 }
