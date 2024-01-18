@@ -45,6 +45,10 @@ const createWindow = () => {
   // when main window is closed, close all window
   mainWindow.on("closed", () => {
     // Close all windows when the main window is closed
+    // showNotification(
+    //   "Final Proxy",
+    //   "👋🏻😊👋🏻"
+    // );
     if (dynamicWindow) {
       dynamicWindow = null;
     }
@@ -102,13 +106,11 @@ const createURLWindow = (file) => {
   }
 };
 
-const NOTIFICATION_TITLE = "Basic Notification";
-const NOTIFICATION_BODY = "Notification from the Main process";
 
-function showNotification() {
+function showNotification({title,body}) {
   new Notification({
-    title: NOTIFICATION_TITLE,
-    body: NOTIFICATION_BODY,
+    title: title,
+    body: body,
   }).show();
 }
 

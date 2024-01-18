@@ -7,7 +7,7 @@ var currentProxy;
 spinner.style.display = "block";
 // ipcRenderer.send("proxy:check");
 function initialRenderMainWindow() {
-  spinner.style.display = "none";
+  spinner.style.display = "block";
   var proxyListParsed = proxy.checkProxyList();
   const noProxy = { title: "Remove Proxy" };
   renderCard(noProxy);
@@ -18,7 +18,7 @@ function initialRenderMainWindow() {
 }
 
 function reRenderMainWindow() {
-  spinner.style.display = "none";
+  spinner.style.display = "block";
   var proxyListParsed = proxy.checkProxyList();
   const noProxy = { title: "Remove Proxy" };
   proxyCards ? (proxyCards.innerHTML = "") : null;
@@ -35,7 +35,7 @@ initialRenderMainWindow();
 // reRenderMainWindow();
 
 function renderCard(ele) {
-  spinner.style.display = "none";
+  spinner.style.display = "block";
   let cardDiv = document.createElement("div");
   cardDiv.classList.add("card");
   cardDiv.setAttribute("title", "click to set this proxy");
@@ -82,6 +82,7 @@ function renderCard(ele) {
     }
   });
   proxyCards && proxyCards.appendChild(cardDiv);
+  spinner.style.display = "none";
 }
 
 function handleProxyChange(ele) {

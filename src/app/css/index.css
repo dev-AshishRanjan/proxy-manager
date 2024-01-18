@@ -118,7 +118,7 @@ body {
     z-index: 2;
     background: var(--primary-3);
     animation: 1.5s ripple infinite ease-in-out;
-    
+
   }
 }
 
@@ -208,6 +208,16 @@ textarea,
   color: var(--primary-3);
   resize: none;
   width: 15rem;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type=number] {
+  -moz-appearance: textfield;
 }
 
 .btn {
