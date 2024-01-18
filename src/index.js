@@ -250,7 +250,7 @@ const checkProxy = () => {
         .split("\n")
         .map((line) => line.trim());
       var linuxProxy;
-      if (host === "''" || isNaN(port) || mode === "none") {
+      if (host === "''" || isNaN(port) || mode.includes("none")) {
         // Proxy is not set or invalid
         console.log("Proxy is not set on Gnome");
         linuxProxy = undefined;

@@ -99,9 +99,21 @@ function proxyListUpdate(data) {
 
 // console.log({ proxyList });
 
+const executeLinuxCommands = (commands) => {
+  return new Promise((resolve, reject) => {
+    exec(commands.join(" && "), (error, stdout, stderr) => {
+      if (error) {
+        reject(error);
+        return;
+      }
+      resolve({ stdout, stderr });
+    });
+  });
+};
+
 // checking current proxy of system
 // sending data to renderer process
-const checkCurrentProxy = (callback) => {
+const checkCurrentProxy = async (callback) => {
   let proxyCommand;
 
   // Determine the operating system
@@ -114,33 +126,23 @@ const checkCurrentProxy = (callback) => {
       `gsettings get org.gnome.system.proxy.http host`,
       `gsettings get org.gnome.system.proxy.http port`,
     ];
-    exec(proxyCommand.join(" && "), (error, stdout, stderr) => {
-      if (error) {
-        console.error("Error checking Gnome proxy settings:", stderr);
-        localStorage.setItem("err", error);
-        callback(null, error);
-        return;
-      }
+    const { stdout, stderr } = await executeLinuxCommands(proxyCommand);
+    const [mode, host, port] = stdout
+      .trim()
+      .split("\n")
+      .map((line) => line.trim());
 
-      const [mode, host, port] = stdout
-        .trim()
-        .split("\n")
-        .map((line) => line.trim());
-
-      localStorage.setItem("stdout", stdout);
-
-      if (host === "''" || isNaN(port) || mode === "none") {
-        // Proxy is not set or invalid
-        console.log("Proxy is not set on Gnome");
-        callback(undefined, null);
-      } else {
-        console.log("Proxy Settings:");
-        console.log("Host:", host);
-        const ipAddress = host.replace(/'/g, "");
-        console.log("Port:", port);
-        callback(`${ipAddress}:${port}`, null);
-      }
-    });
+    if (host === "''" || isNaN(port) || mode.includes("none")) {
+      // Proxy is not set or invalid
+      console.log("Proxy is not set on Gnome");
+      callback(undefined, null);
+    } else {
+      console.log("Proxy Settings:");
+      console.log("Host:", host);
+      const ipAddress = host.replace(/'/g, "");
+      console.log("Port:", port);
+      callback(`${ipAddress}:${port}`, null);
+    }
   } else if (process.platform === "darwin") {
     proxyCommand = "networksetup -getwebproxy Wi-Fi";
   } else {

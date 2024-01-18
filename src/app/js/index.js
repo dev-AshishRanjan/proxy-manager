@@ -60,7 +60,7 @@ function renderCard(ele) {
     : cardDiv.addEventListener("click", () => handleProxyRemove());
   // cardDiv.classList.add("selected");
   proxy.checkCurrentProxy((proxy, error) => {
-    if (proxy === undefined && ele.title === "Remove Proxy") {
+    if ((proxy === undefined||error) && ele.title === "Remove Proxy") {
       console.error(error);
       cardDiv.classList.add("selected");
       const ripple = document.createElement("span");
