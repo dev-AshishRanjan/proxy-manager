@@ -8,8 +8,6 @@ const {
 } = require("electron");
 const path = require("path");
 const { exec } = require("child_process");
-const { updateElectronApp } = require("update-electron-app");
-updateElectronApp();
 // const settings = require("electron-settings");
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
