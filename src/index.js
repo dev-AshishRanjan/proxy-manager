@@ -155,6 +155,12 @@ const menu = [
               click: () => createURLWindow(),
               accelerator: "CmdOrCtrl+F",
             },
+            {
+        label: "Open Dev Tools",
+        click: () => mainWindow.webContents.openDevTools(),
+        accelerator: "CmdOrCtrl+O",
+        visible: false,
+      },
           ],
         },
       ]
@@ -211,10 +217,11 @@ const menu = [
               accelerator: "CmdOrCtrl+F",
             },
             {
-              label: "Open Dev Tools",
-              click: () => mainWindow.webContents.openDevTools(),
-              accelerator: "CmdOrCtrl+O",
-            },
+        label: "Open Dev Tools",
+        click: () => mainWindow.webContents.openDevTools(),
+        accelerator: "CmdOrCtrl+O",
+        visible: false,
+      },
           ],
         },
       ]

@@ -149,14 +149,14 @@ window.ipcRenderer.on("proxy:success", (e, options) => {
   fireToast(e.msg, "success");
   setTimeout(() => {
     reRenderMainWindow();
-  }, 500);
+  }, 600);
 });
 window.ipcRenderer.on("proxy:error", (e, options) => {
   console.log({ e });
   fireToast(e.msg, "error");
   setTimeout(() => {
     reRenderMainWindow();
-  }, 500);
+  }, 600);
 });
 window.ipcRenderer.on("proxy:warning", (e, options) => {
   console.log({ e });
