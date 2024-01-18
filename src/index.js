@@ -16,6 +16,7 @@ if (require("electron-squirrel-startup")) {
 }
 
 const isMac = process.platform === "darwin";
+const isLinux = process.platform === "linux";
 const isDev = process.env.NODE_ENV === "development"; //change it to (!=="production")
 
 let mainWindow;
@@ -106,8 +107,7 @@ const createURLWindow = (file) => {
   }
 };
 
-
-function showNotification({title,body}) {
+function showNotification({ title, body }) {
   new Notification({
     title: title,
     body: body,
@@ -158,11 +158,11 @@ const menu = [
               accelerator: "CmdOrCtrl+F",
             },
             {
-        label: "Open Dev Tools",
-        click: () => mainWindow.webContents.openDevTools(),
-        accelerator: "CmdOrCtrl+O",
-        visible: false,
-      },
+              label: "Open Dev Tools",
+              click: () => mainWindow.webContents.openDevTools(),
+              accelerator: "CmdOrCtrl+O",
+              visible: false,
+            },
           ],
         },
       ]
@@ -219,11 +219,25 @@ const menu = [
               accelerator: "CmdOrCtrl+F",
             },
             {
-        label: "Open Dev Tools",
-        click: () => mainWindow.webContents.openDevTools(),
-        accelerator: "CmdOrCtrl+O",
-        visible: false,
-      },
+              label: "Open Dev Tools",
+              click: () => mainWindow.webContents.openDevTools(),
+              accelerator: "CmdOrCtrl+O",
+              visible: false,
+            },
+          ],
+        },
+      ]
+    : []),
+  ...(isLinux
+    ? [
+        {
+          label: "More",
+          submenu: [
+            {
+              label: "Add sudo",
+              click: () => createDynamicWindow("addSudo.html"),
+              accelerator: "CmdOrCtrl+S",
+            },
           ],
         },
       ]
@@ -366,6 +380,8 @@ app.on("activate", () => {
   }
 });
 
+var proxyManagerSudo = null;
+
 // respond to ipcRenderer
 ipcMain.on("proxy:set", (e, options) => {
   console.log(options);
@@ -377,6 +393,16 @@ ipcMain.on("proxy:set", (e, options) => {
   // setProxyForVSCode(`https://${options.ipAddress}:${options.port}`);
   setProxyForPip(`https://${options.ipAddress}:${options.port}`);
   setSystemEnvironmentVariables(`http://${options.ipAddress}:${options.port}`);
+  // for linux manage all proxy with sudo
+  mainWindow.webContents
+    .executeJavaScript('localStorage.getItem("proxyManagerSudo");', true)
+    .then((result) => {
+      console.log({ result });
+      proxyManagerSudo = result;
+    });
+  proxyManagerSudo !== null
+    ? setLinuxAllProxy(options.ipAddress, options.port)
+    : null;
 });
 ipcMain.on("proxy:unset", (e, options) => {
   console.log(options);
@@ -384,6 +410,14 @@ ipcMain.on("proxy:unset", (e, options) => {
   // unsetProxyForVSCode();
   unsetProxyForPip();
   unsetSystemEnvironmentVariables();
+  // for linux manage all proxy with sudo
+  mainWindow.webContents
+    .executeJavaScript('localStorage.getItem("proxyManagerSudo");', true)
+    .then((result) => {
+      console.log({ result });
+      proxyManagerSudo = result;
+    });
+  proxyManagerSudo !== null ? unsetLinuxAllProxy() : null;
 });
 ipcMain.on("proxy:check", (e, options) => {
   console.log(options);
@@ -400,6 +434,7 @@ const execPromise = (command) => {
   return new Promise((resolve, reject) => {
     exec(command, (error, stdout, stderr) => {
       if (error) {
+        console.log({ error });
         reject({ command, error, stderr });
       } else {
         resolve({ command, stdout });
@@ -762,4 +797,36 @@ function unsetSystemEnvironmentVariables() {
     //   msg: "warning : system environment variables is only supported on Windows",
     // });
   }
+}
+
+async function setLinuxAllProxy(host, port) {
+  const proxyserver = `http://${host}:${port}`;
+  const commandsEnv = `$echo ${proxyManagerSudo} | sudo -S tee -a /etc/environment << EOF
+  http_proxy=${proxyserver}
+  https_proxy=${proxyserver}
+  ftp_proxy=${proxyserver}
+  no_proxy="localhost,127.0.0.1,localaddress,.localdomain.com,127.0.0.0/8,::1"
+  HTTP_PROXY=${proxyserver}
+  HTTPS_PROXY=${proxyserver}
+  FTP_PROXY=${proxyserver}
+  NO_PROXY="localhost,127.0.0.1,localaddress,.localdomain.com,127.0.0.0/8,::1"
+EOF`;
+  const commandsApt = `$echo ${proxyManagerSudo} | sudo -S tee /etc/apt/apt.conf.d/proxyManager << EOF
+    Acquire::http::proxy "http://${host}:${post}/";
+    Acquire::ftp::proxy "ftp://${host}:${post}/";
+    Acquire::https::proxy "https://${host}:${post}/";
+EOF`;
+  await execPromise(commandsEnv);
+  await execPromise(commandsApt);
+}
+
+async function unsetLinuxAllProxy() {
+  // const proxyserver = `http://${host}:${port}`;
+  const commandsEnv = `$echo ${proxyManagerSudo} | sudo -S rm /etc/environment &&
+  $echo ${proxyManagerSudo} | sudo -S tee /etc/environment << EOF
+  PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games"
+EOF`;
+  const commandsApt = `$echo ${proxyManagerSudo} | sudo -S rm /etc/apt/apt.conf.d/proxyManager`;
+  await execPromise(commandsEnv);
+  await execPromise(commandsApt);
 }
