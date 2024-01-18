@@ -816,8 +816,33 @@ EOF`;
     Acquire::ftp::proxy "ftp://${host}:${port}/";
     Acquire::https::proxy "https://${host}:${port}/";
 EOF`;
-  await execPromise(commandsEnv);
-  await execPromise(commandsApt);
+  // await execPromise(commandsEnv);
+  // await execPromise(commandsApt);
+  exec(commandsEnv, (error, stdout, stderr) => {
+    if (error) {
+      console.error("Got an Error : ", stderr);
+      mainWindow.webContents.send("proxy:error", { msg: stderr });
+      return;
+    }
+    console.log({ stdout });
+    console.log(`command executed successfully: ${command}`);
+    mainWindow.webContents.send("proxy:success", {
+      msg: `success : set system, linux sudo env`,
+    });
+  });
+  exec(commandsApt, (error, stdout, stderr) => {
+    if (error) {
+      console.error("Got an Error : ", stderr);
+      mainWindow.webContents.send("proxy:error", { msg: stderr });
+      return;
+    }
+    console.log({ stdout });
+    console.log(`command executed successfully: ${command}`);
+    mainWindow.webContents.send("proxy:success", {
+      msg: `success : set system, linux sudo apt`,
+    });
+  });
+  console.log({ servicesUpdated });
 }
 
 async function unsetLinuxAllProxy() {
@@ -827,6 +852,31 @@ async function unsetLinuxAllProxy() {
   PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games"
 EOF`;
   const commandsApt = `echo ${proxyManagerSudo} | sudo -S rm /etc/apt/apt.conf.d/proxyManager`;
-  await execPromise(commandsEnv);
-  await execPromise(commandsApt);
+  // await execPromise(commandsEnv);
+  // await execPromise(commandsApt);
+  exec(commandsEnv, (error, stdout, stderr) => {
+    if (error) {
+      console.error("Got an Error : ", stderr);
+      mainWindow.webContents.send("proxy:error", { msg: stderr });
+      return;
+    }
+    console.log({ stdout });
+    console.log(`command executed successfully: ${command}`);
+    mainWindow.webContents.send("proxy:success", {
+      msg: `success : unset system, linux sudo env`,
+    });
+  });
+  exec(commandsApt, (error, stdout, stderr) => {
+    if (error) {
+      console.error("Got an Error : ", stderr);
+      mainWindow.webContents.send("proxy:error", { msg: stderr });
+      return;
+    }
+    console.log({ stdout });
+    console.log(`command executed successfully: ${command}`);
+    mainWindow.webContents.send("proxy:success", {
+      msg: `success : unset system, linux sudo apt`,
+    });
+  });
+  console.log({ servicesUpdated });
 }
