@@ -12,26 +12,28 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="./css/index.css" />
+    <link rel="stylesheet" href="./css/checkbox.css" />
     <title>Proxy Manager | Add Sudo</title>
   </head>
   <body>
-    <h2>Add Sudo Password</h2>
-    <h5 style="width: 100%;text-align: center;">
-      Add the password to give us authrization to manage the proxy for every
-      nook and corner of Linux system like,APT , gnome
+    <h2>Enable / Disable sudo</h2>
+    <h5 style="width: 100%; text-align: center">
+      Give us authrization to manage the proxy for every corner of your system
     </h5>
-    <h5 style="width: 100%;text-align: center;">We would be able to manage the proxy of your system more efficiently</h5>
+    <h5 style="width: 100%; text-align: center">
+      We would be able to manage the proxy of your system more efficiently
+    </h5>
+    <p style="width: 100%; text-align: center">
+      After enabling we would ask for sudo password, every time you change proxy
+      for authrization, we are not saving it
+    </p>
     <div class="body">
       <!-- <div class="spinner"></div> -->
       <form class="addSudo">
-        <input
-          type="text"
-          placeholder="Your Sudo Password"
-          name="sudo"
-          class="sudo"
-          required
-        />
-        <button type="button" class="btn">submit</button>
+        <label class="switch">
+          <input type="checkbox" name="sudo" id="sudo" class="sudo" />
+          <span class="slider"></span>
+        </label>
       </form>
     </div>
   </body>

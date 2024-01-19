@@ -1,23 +1,32 @@
 // custom page
 const addSudo = document.querySelector(".addSudo");
-const sudo = document.querySelector(".addSudo>.sudo");
+const sudo = document.querySelector(".addSudo .sudo");
 const btn = document.querySelector(".addSudo>.btn");
 
-btn &&
-  btn.addEventListener("click", () => {
-    if (sudo.value == "") {
-      fireToast(`All Fields are required`, "error");
-      return;
-    } else {
-      handleSubmission();
-    }
+const initialVal = localStorage.getItem("proxyManagerSudo");
+console.log({ initialVal });
+console.log(sudo.value);
+if (initialVal !== null) sudo.checked = true;
+else sudo.checked = false;
+
+sudo &&
+  sudo.addEventListener("change", () => {
+    handleSubmission();
+    // sudo.value = !sudo.value;
   });
+
 function handleSubmission(e) {
   console.log("sudo submitted");
-  console.log(sudo.value);
+  console.log(sudo.checked);
   try {
-    localStorage.setItem("proxyManagerSudo", sudo.value);
-    fireToast(`Added sudo password in localstorage`, "success");
+    const val = localStorage.getItem("proxyManagerSudo");
+    if (val !== null) {
+      localStorage.removeItem("proxyManagerSudo");
+      fireToast(`sudo disabled`, "success");
+    } else {
+      localStorage.setItem("proxyManagerSudo", "Yes");
+      fireToast(`sudo enabled`, "success");
+    }
   } catch (err) {
     fireToast(`Error : ${err}`, "error");
   }

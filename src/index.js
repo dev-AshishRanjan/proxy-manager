@@ -229,13 +229,13 @@ const menu = [
         },
       ]
     : []),
-  ...(isLinux
+  ...(isLinux || isMac
     ? [
         {
           label: "More",
           submenu: [
             {
-              label: "Add sudo",
+              label: "Sudo Usage",
               click: () => createDynamicWindow("addSudo.html"),
               accelerator: "CmdOrCtrl+S",
             },
@@ -438,13 +438,13 @@ ipcMain.on("proxy:set", (e, options) => {
   // for linux manage all proxy with sudo
   mainWindow.webContents
     .executeJavaScript('localStorage.getItem("proxyManagerSudo");', true)
-    .then((result) => {
+    .then(async (result) => {
       console.log({ result });
       proxyManagerSudo = result;
+      result !== null
+        ? await setLinuxAllProxyPrompt(options.ipAddress, options.port)
+        : null;
     });
-  proxyManagerSudo !== null
-    ? setLinuxAllProxyTest(options.ipAddress, options.port)
-    : null;
 });
 ipcMain.on("proxy:unset", (e, options) => {
   console.log(options);
@@ -455,11 +455,11 @@ ipcMain.on("proxy:unset", (e, options) => {
   // for linux manage all proxy with sudo
   mainWindow.webContents
     .executeJavaScript('localStorage.getItem("proxyManagerSudo");', true)
-    .then((result) => {
+    .then(async (result) => {
       console.log({ result });
       proxyManagerSudo = result;
+      result !== null ? await unsetLinuxAllProxyPrompt() : null;
     });
-  proxyManagerSudo !== null ? unsetLinuxAllProxyTest() : null;
 });
 ipcMain.on("proxy:check", (e, options) => {
   console.log(options);
@@ -929,7 +929,7 @@ var options = {
   icns: "/public/icons/icon_256.icns",
 };
 
-async function setLinuxAllProxyTest(host, port) {
+async function setLinuxAllProxyPrompt(host, port) {
   const proxyserver = `http://${host}:${port}`;
   const commandsEnv = `
     http_proxy=${proxyserver}
@@ -950,73 +950,85 @@ async function setLinuxAllProxyTest(host, port) {
   sudo.exec(
     `tee -a /etc/environment << EOF
     ${commandsEnv}
+EOF && tee /etc/apt/apt.conf.d/proxyManager << EOF
+${commandsApt}
 EOF`,
     options,
     (error, stdout, stderr) => {
       if (error) {
         console.error("Got an Error:", stderr);
-        mainWindow.webContents.send("proxy:error", { msg: stderr });
+        mainWindow.webContents.send("proxy:warning", {
+          msg: "Sudo implementation failed",
+        });
         return;
       }
       console.log({ stdout });
       console.log("Command executed successfully for environment variables.");
       mainWindow.webContents.send("proxy:success", {
-        msg: "Success: Set system, Linux sudo env",
+        msg: "Success: Set env, APT proxy using sudo",
       });
     }
   );
+  //   sudo.exec(
+  //     `tee /etc/apt/apt.conf.d/proxyManager << EOF
+  //     ${commandsApt}
+  // EOF`,
+  //     options,
+  //     (error, stdout, stderr) => {
+  //       if (error) {
+  //         console.error("Got an Error:", stderr);
+  //         mainWindow.webContents.send("proxy:error", { msg: stderr });
+  //         return;
+  //       }
+  //       console.log({ stdout });
+  //       console.log("Command executed successfully for APT configuration.");
+  //       mainWindow.webContents.send("proxy:success", {
+  //         msg: "Success: Set system, Linux sudo apt",
+  //       });
+  //     }
+  //   );
+}
+
+async function unsetLinuxAllProxyPrompt() {
+  const commandsEnv = `sudo sed -i '/http_proxy=/d; /https_proxy=/d; /ftp_proxy=/d; /no_proxy=/d; /HTTP_PROXY=/d; /HTTPS_PROXY=/d; /FTP_PROXY=/d; /NO_PROXY=/d' /etc/environment
+  `;
+  //   const commandsEnv = `
+  //     rm /etc/environment &&
+  //     tee /etc/environment << EOF
+  //     PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games"
+  // EOF`;
+
+  const commandsApt = `rm /etc/apt/apt.conf.d/proxyManager`;
+
   sudo.exec(
-    `tee /etc/apt/apt.conf.d/proxyManager << EOF
-    ${commandsApt}
-EOF`,
+    `${commandsEnv} && ${commandsApt}`,
     options,
     (error, stdout, stderr) => {
       if (error) {
         console.error("Got an Error:", stderr);
-        mainWindow.webContents.send("proxy:error", { msg: stderr });
+        mainWindow.webContents.send("proxy:warning", {
+          msg: "Sudo implementation failed",
+        });
         return;
       }
       console.log({ stdout });
-      console.log("Command executed successfully for APT configuration.");
+      console.log("Command executed successfully for environment variables.");
       mainWindow.webContents.send("proxy:success", {
-        msg: "Success: Set system, Linux sudo apt",
+        msg: "Success: Unset env, APT proxy using sudo",
       });
     }
   );
-}
 
-async function unsetLinuxAllProxyTest() {
-  const commandsEnv = `
-    rm /etc/environment &&
-    tee /etc/environment << EOF
-    PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games"
-EOF`;
-
-  const commandsApt = `rm /etc/apt/apt.conf.d/proxyManager`;
-
-  sudo.exec(`${commandsEnv}`, options, (error, stdout, stderr) => {
-    if (error) {
-      console.error("Got an Error:", stderr);
-      mainWindow.webContents.send("proxy:error", { msg: stderr });
-      return;
-    }
-    console.log({ stdout });
-    console.log("Command executed successfully for environment variables.");
-    mainWindow.webContents.send("proxy:success", {
-      msg: "Success: Unset system, Linux sudo env",
-    });
-  });
-
-  sudo.exec(`${commandsApt}`, options, (error, stdout, stderr) => {
-    if (error) {
-      console.error("Got an Error:", stderr);
-      mainWindow.webContents.send("proxy:error", { msg: stderr });
-      return;
-    }
-    console.log({ stdout });
-    console.log("Command executed successfully for APT configuration.");
-    mainWindow.webContents.send("proxy:success", {
-      msg: "Success: Unset system, Linux sudo apt",
-    });
-  });
+  // sudo.exec(`${commandsApt}`, options, (error, stdout, stderr) => {
+  //   if (error) {
+  //     console.error("Got an Error:", stderr);
+  //     mainWindow.webContents.send("proxy:error", { msg: stderr });
+  //     return;
+  //   }
+  //   console.log({ stdout });
+  //   console.log("Command executed successfully for APT configuration.");
+  //   mainWindow.webContents.send("proxy:success", {
+  //     msg: "Success: Unset system, Linux sudo apt",
+  //   });
+  // });
 }
