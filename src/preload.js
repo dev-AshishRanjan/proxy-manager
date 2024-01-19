@@ -158,7 +158,7 @@ const checkCurrentProxy = async (callback) => {
       var linuxProxy;
       if (
         Server === "''" ||
-        Port(port) ||
+        isNaN(Port) ||
         Enabled.includes("No") ||
         Enabled.includes("no")
       ) {

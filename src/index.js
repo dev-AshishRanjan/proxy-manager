@@ -312,7 +312,7 @@ const checkProxy = () => {
         .split("\n")
         .map((line) => line.trim().split(":")[1].trim());
       var linuxProxy;
-      if (Server === "''" || Port(port) || Enabled.includes("No") || Enabled.includes("no")) {
+      if (Server === "''" || isNaN(Port) || Enabled.includes("No") || Enabled.includes("no")) {
         // Proxy is not set or invalid
         console.log("Proxy is not set on mac");
         linuxProxy = undefined;
