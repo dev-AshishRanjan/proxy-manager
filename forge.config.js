@@ -20,6 +20,13 @@ module.exports = {
       },
     },
     {
+      name: '@electron-forge/maker-dmg',
+      config: {
+        background: './public/icons/icon_256.png',
+        format: 'ULFO'
+      }
+    },
+    {
       name: "@electron-forge/maker-deb",
       config: {
         options: {
