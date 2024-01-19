@@ -145,6 +145,35 @@ const checkCurrentProxy = async (callback) => {
     }
   } else if (process.platform === "darwin") {
     proxyCommand = "networksetup -getwebproxy Wi-Fi";
+    exec(proxyCommand, (error, stdout, stderr) => {
+      if (error) {
+        console.error("Error checking darwin wifi proxy settings:", stderr);
+        callback(null, stderr);
+      }
+
+      const [Enabled, Server, Port, Authenticated_Proxy_Enabled] = stdout
+        .trim()
+        .split("\n")
+        .map((line) => line.trim().split(":")[1].trim());
+      var linuxProxy;
+      if (
+        Server === "''" ||
+        Port(port) ||
+        Enabled.includes("No") ||
+        Enabled.includes("no")
+      ) {
+        // Proxy is not set or invalid
+        console.log("Proxy is not set on mac");
+        linuxProxy = undefined;
+      } else {
+        console.log("Proxy Settings:");
+        console.log("Host:", Server);
+        const ipAddress = Server.replace(/'/g, "");
+        console.log("Port:", Port);
+        linuxProxy = `${Server}:${Port}`;
+      }
+      callback(linuxProxy, null);
+    });
   } else {
     console.error("Unsupported operating system");
     callback(null, "Unsupported operating system");
@@ -152,7 +181,7 @@ const checkCurrentProxy = async (callback) => {
   }
 
   // Execute the proxy command
-  if (process.platform !== "linux") {
+  if (process.platform === "win32") {
     exec(proxyCommand, (error, stdout, stderr) => {
       if (error) {
         console.log({ error });

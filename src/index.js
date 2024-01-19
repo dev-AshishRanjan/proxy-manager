@@ -296,6 +296,42 @@ const checkProxy = () => {
     });
   } else if (process.platform === "darwin") {
     proxyCommand = "networksetup -getwebproxy Wi-Fi";
+    exec(proxyCommand, (error, stdout, stderr) => {
+      if (error) {
+        console.error("Error checking darwin wifi proxy settings:", stderr);
+        mainWindow.webContents.send("proxy:check:error", {
+          msg: `error : ${stderr}`,
+        });
+        dynamicWindow.webContents.send("proxy:check:error", {
+          msg: `error : ${stderr}`,
+        });
+      }
+
+      const [Enabled, Server, Port, Authenticated_Proxy_Enabled] = stdout
+        .trim()
+        .split("\n")
+        .map((line) => line.trim().split(":")[1].trim());
+      var linuxProxy;
+      if (Server === "''" || Port(port) || Enabled.includes("No") || Enabled.includes("no")) {
+        // Proxy is not set or invalid
+        console.log("Proxy is not set on mac");
+        linuxProxy = undefined;
+      } else {
+        console.log("Proxy Settings:");
+        console.log("Host:", Server);
+        const ipAddress = Server.replace(/'/g, "");
+        console.log("Port:", Port);
+        linuxProxy = `${Server}:${Port}`;
+      }
+      mainWindow.webContents.send("proxy:check:success", {
+        msg: `current system proxy : ${linuxProxy}`,
+        proxy: linuxProxy,
+      });
+      dynamicWindow.webContents.send("proxy:check:success", {
+        msg: `current system proxy : ${linuxProxy}`,
+        proxy: linuxProxy,
+      });
+    });
   } else {
     console.error("Unsupported operating system");
     mainWindow.webContents.send("proxy:check:error", {
@@ -308,7 +344,7 @@ const checkProxy = () => {
   }
 
   // Execute the proxy command
-  if (process.platform !== "linux") {
+  if (process.platform === "win32") {
     exec(proxyCommand, (error, stdout, stderr) => {
       if (error) {
         console.error("Error checking proxy settings:", stderr);
@@ -801,7 +837,7 @@ function unsetSystemEnvironmentVariables() {
 
 async function setLinuxAllProxy(host, port) {
   const proxyserver = `http://${host}:${port}`;
-  const commandsEnv = `echo ${proxyManagerSudo} | sudo -S tee -a /etc/environment << EOF
+  const commandsEnv = `echo ${proxyManagerSudo} | sudo -S -k tee -a /etc/environment << EOF
   http_proxy=${proxyserver}
   https_proxy=${proxyserver}
   ftp_proxy=${proxyserver}
@@ -811,7 +847,7 @@ async function setLinuxAllProxy(host, port) {
   FTP_PROXY=${proxyserver}
   NO_PROXY="localhost,127.0.0.1,localaddress,.localdomain.com,127.0.0.0/8,::1"
 EOF`;
-  const commandsApt = `echo ${proxyManagerSudo} | sudo -S tee /etc/apt/apt.conf.d/proxyManager << EOF
+  const commandsApt = `echo ${proxyManagerSudo} | sudo -S -k tee /etc/apt/apt.conf.d/proxyManager << EOF
     Acquire::http::proxy "http://${host}:${port}/";
     Acquire::ftp::proxy "ftp://${host}:${port}/";
     Acquire::https::proxy "https://${host}:${port}/";
@@ -847,11 +883,11 @@ EOF`;
 
 async function unsetLinuxAllProxy() {
   // const proxyserver = `http://${host}:${port}`;
-  const commandsEnv = `echo ${proxyManagerSudo} | sudo -S rm /etc/environment &&
-  echo ${proxyManagerSudo} | sudo -S tee /etc/environment << EOF
+  const commandsEnv = `echo ${proxyManagerSudo} | sudo -S -k rm /etc/environment &&
+  echo ${proxyManagerSudo} | sudo -S -k tee /etc/environment << EOF
   PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games"
 EOF`;
-  const commandsApt = `echo ${proxyManagerSudo} | sudo -S rm /etc/apt/apt.conf.d/proxyManager`;
+  const commandsApt = `echo ${proxyManagerSudo} | sudo -S -k rm /etc/apt/apt.conf.d/proxyManager`;
   // await execPromise(commandsEnv);
   // await execPromise(commandsApt);
   exec(commandsEnv, (error, stdout, stderr) => {
