@@ -950,7 +950,8 @@ async function setLinuxAllProxyPrompt(host, port) {
   sudo.exec(
     `tee -a /etc/environment << EOF
     ${commandsEnv}
-EOF && tee /etc/apt/apt.conf.d/proxyManager << EOF
+EOF
+tee /etc/apt/apt.conf.d/proxyManager << EOF
 ${commandsApt}
 EOF`,
     options,
@@ -990,7 +991,7 @@ EOF`,
 }
 
 async function unsetLinuxAllProxyPrompt() {
-  const commandsEnv = `sudo sed -i '/http_proxy=/d; /https_proxy=/d; /ftp_proxy=/d; /no_proxy=/d; /HTTP_PROXY=/d; /HTTPS_PROXY=/d; /FTP_PROXY=/d; /NO_PROXY=/d' /etc/environment
+  const commandsEnv = `sed -i '/http_proxy=/d; /https_proxy=/d; /ftp_proxy=/d; /no_proxy=/d; /HTTP_PROXY=/d; /HTTPS_PROXY=/d; /FTP_PROXY=/d; /NO_PROXY=/d' /etc/environment
   `;
   //   const commandsEnv = `
   //     rm /etc/environment &&
