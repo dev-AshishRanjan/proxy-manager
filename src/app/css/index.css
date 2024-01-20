@@ -42,13 +42,15 @@
   }
 }
 
-::-webkit-scrollbar{
+::-webkit-scrollbar {
   width: 0.5rem;
 }
-::-webkit-scrollbar-track{
+
+::-webkit-scrollbar-track {
   background: var(--primary-1);
 }
-::-webkit-scrollbar-thumb{
+
+::-webkit-scrollbar-thumb {
   border-radius: 0.5rem;
   background: var(--primary-2);
 }
@@ -354,7 +356,7 @@ input[type=number] {
 
   .notice {
     width: 100%;
-    min-height: 5rem;
+    /* min-height: 5rem; */
     background: var(--card);
     border-radius: 0.5rem;
     padding: 1rem;
@@ -362,7 +364,20 @@ input[type=number] {
     border: 1px solid var(--card);
     position: relative;
 
-    &:hover {
+    summary {
+      font-weight: 600;
+      font-size: 1.2rem;
+      cursor: pointer;
+      list-style-type: '[+]  ';
+    }
+
+    &[open] summary {
+      list-style-type: '[x]  ';
+      margin-bottom: 1rem;
+    }
+
+    &:hover,
+    &[open] {
       border: 1px solid var(--primary-3) !important;
     }
 

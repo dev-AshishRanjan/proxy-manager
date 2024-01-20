@@ -5,7 +5,7 @@ var issuesTaggedNotice = [
   {
     id: 0,
     title: "No Notice",
-    body: "Currently we have no notices, check back later. You may have issues due to used up free github api rate limit",
+    body: "Currently we have no notices, check back later. OR, You may have issues due to github api rate limit",
   },
 ];
 fetch("https://api.github.com/repos/dev-AshishRanjan/proxy-manager/issues")
@@ -32,9 +32,9 @@ function renderNotice() {
   spinner.style.display = "none";
   if (issuesTaggedNotice.length > 0) {
     issuesTaggedNotice.map((ele) => {
-      let cardDiv = document.createElement("div");
+      let cardDiv = document.createElement("details");
       cardDiv.classList.add("notice");
-      let header = document.createElement("h3");
+      let header = document.createElement("summary");
       header.innerText = ele.title;
       let description = document.createElement("p");
       description.innerHTML = ele.body;
