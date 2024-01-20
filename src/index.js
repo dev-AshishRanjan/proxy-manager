@@ -959,7 +959,7 @@ EOF`,
     (error, stdout, stderr) => {
       if (error) {
         console.error("Got an Error:", stderr);
-        alert(stderr);
+        // alert(stderr);
         mainWindow.webContents.send("proxy:warning", {
           msg: "Sudo implementation failed",
         });
@@ -1010,7 +1010,7 @@ ${commandsApt}`,
     (error, stdout, stderr) => {
       if (error) {
         console.error("Got an Error:", stderr);
-        alert(stderr);
+        // alert(stderr);
         mainWindow.webContents.send("proxy:warning", {
           msg: "Sudo implementation failed",
         });
