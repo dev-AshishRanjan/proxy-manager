@@ -508,7 +508,7 @@ async function setProxy(proxyServer, host, port) {
     });
   });
   // npm
-  const npmPromise = new Promise(async(resolve) => {
+  const npmPromise = new Promise(async (resolve) => {
     exec("npm --version", async (error, stdout, stderr) => {
       if (error) {
         console.error("npm error : ", stderr);
@@ -524,7 +524,7 @@ async function setProxy(proxyServer, host, port) {
       }
     });
   });
-  if(process.platform === "darwin"){
+  if (process.platform === "darwin") {
     await execPromise(`npm config set proxy ${proxyServer}`);
     await execPromise(`npm config set https-proxy ${proxyServer}`);
   }
@@ -617,7 +617,7 @@ async function unsetProxy() {
     });
   });
 
-  if(process.platform === "darwin"){
+  if (process.platform === "darwin") {
     await execPromise(`npm config rm proxy`);
     await execPromise(`npm config rm https-proxy`);
   }
@@ -1011,7 +1011,8 @@ async function unsetLinuxAllProxyPrompt() {
   const commandsApt = `rm /etc/apt/apt.conf.d/proxyManager`;
 
   sudo.exec(
-    `${commandsEnv} && ${commandsApt}`,
+    `${commandsEnv}
+${commandsApt}`,
     options,
     (error, stdout, stderr) => {
       if (error) {
