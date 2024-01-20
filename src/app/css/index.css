@@ -32,14 +32,25 @@
 
 @media (prefers-color-scheme: light) {
   :root {
-    --primary-1: #bce3ffce;
-    --primary-2: #e8aac5;
-    --card: #e8aac58d;
-    --primary-3: #5b8fb9;
-    --primary-4: #335168;
+    --primary-1: #f2f1ef;
+    --primary-2: #d9b18e;
+    --card: #d9b18e8d;
+    --primary-3: #a67564;
+    --primary-4: #723e31;
     --sidenav: #bce3ffce;
-    --gradient: #f7acff;
+    --gradient: #d9d2cc;
   }
+}
+
+::-webkit-scrollbar{
+  width: 0.5rem;
+}
+::-webkit-scrollbar-track{
+  background: var(--primary-1);
+}
+::-webkit-scrollbar-thumb{
+  border-radius: 0.5rem;
+  background: var(--primary-2);
 }
 
 body {
@@ -274,6 +285,7 @@ input[type=number] {
         min-width: 5rem;
         max-width: 8rem;
         height: 4rem;
+        color: var(--primary-3);
       }
     }
 
