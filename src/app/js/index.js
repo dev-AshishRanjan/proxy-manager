@@ -146,6 +146,7 @@ function fireToast(message, type = info) {
 }
 
 window.ipcRenderer.on("proxy:success", (e, options) => {
+  spinner.style.display = "block";
   console.log({ e });
   fireToast(e.msg, "success");
   setTimeout(() => {
@@ -153,16 +154,18 @@ window.ipcRenderer.on("proxy:success", (e, options) => {
   }, 600);
 });
 window.ipcRenderer.on("proxy:error", (e, options) => {
+  spinner.style.display = "block";
   console.log({ e });
   fireToast(e.msg, "error");
-  setTimeout(() => {
-    reRenderMainWindow();
-  }, 600);
+  // setTimeout(() => {
+  //   reRenderMainWindow();
+  // }, 600);
 });
 window.ipcRenderer.on("proxy:warning", (e, options) => {
+  spinner.style.display = "block";
   console.log({ e });
   fireToast(e.msg, "info");
-  reRenderMainWindow();
+  // reRenderMainWindow();
 });
 window.ipcRenderer.on("proxy:check:error", (e, options) => {
   console.log({ e });

@@ -486,7 +486,7 @@ const execPromise = (command) => {
 };
 
 // change proxy and send using webcontents
-function setProxy(proxyServer, host, port) {
+async function setProxy(proxyServer, host, port) {
   console.log(proxyServer);
   const allCommands = [];
   const servicesUpdated = [];
@@ -508,7 +508,7 @@ function setProxy(proxyServer, host, port) {
     });
   });
   // npm
-  const npmPromise = new Promise((resolve) => {
+  const npmPromise = new Promise(async(resolve) => {
     exec("npm --version", async (error, stdout, stderr) => {
       if (error) {
         console.error("npm error : ", stderr);
@@ -524,6 +524,10 @@ function setProxy(proxyServer, host, port) {
       }
     });
   });
+  if(process.platform === "darwin"){
+    await execPromise(`npm config set proxy ${proxyServer}`);
+    await execPromise(`npm config set https-proxy ${proxyServer}`);
+  }
 
   if (process.platform === "win32") {
     // Windows
@@ -575,7 +579,7 @@ function setProxy(proxyServer, host, port) {
 
 // console.log({ lol: process.env.HTTPS_PROXY });
 
-function unsetProxy() {
+async function unsetProxy() {
   const allCommands = [];
   const servicesUpdated = [];
   // git
@@ -612,6 +616,11 @@ function unsetProxy() {
       }
     });
   });
+
+  if(process.platform === "darwin"){
+    await execPromise(`npm config rm proxy`);
+    await execPromise(`npm config rm https-proxy`);
+  }
   // Determine the operating system
   if (process.platform === "win32") {
     // Windows
