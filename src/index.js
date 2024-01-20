@@ -441,8 +441,11 @@ ipcMain.on("proxy:set", (e, options) => {
     .then(async (result) => {
       console.log({ result });
       proxyManagerSudo = result;
-      result !== null
+      result !== null && isLinux
         ? await setLinuxAllProxyPrompt(options.ipAddress, options.port)
+        : null;
+      result !== null && isMac
+        ? await setMacAllProxyPrompt(options.ipAddress, options.port)
         : null;
     });
 });
@@ -458,7 +461,8 @@ ipcMain.on("proxy:unset", (e, options) => {
     .then(async (result) => {
       console.log({ result });
       proxyManagerSudo = result;
-      result !== null ? await unsetLinuxAllProxyPrompt() : null;
+      result !== null && isLinux ? await unsetLinuxAllProxyPrompt() : null;
+      result !== null && isMac ? await unsetMacAllProxyPrompt() : null;
     });
 });
 ipcMain.on("proxy:check", (e, options) => {
@@ -960,9 +964,8 @@ EOF`,
       if (error) {
         console.error("Got an Error:", stderr);
         // alert(stderr);
-        showNotification("macos", stderr);
         mainWindow.webContents.send("proxy:warning", {
-          msg: stderr,
+          msg: "Sudo implementation failed",
         });
         return;
       }
@@ -1012,9 +1015,8 @@ ${commandsApt}`,
       if (error) {
         console.error("Got an Error:", stderr);
         // alert(stderr);
-        showNotification("macos", stderr);
         mainWindow.webContents.send("proxy:warning", {
-          msg: stderr,
+          msg: "Sudo implementation failed",
         });
         return;
       }
@@ -1038,4 +1040,68 @@ ${commandsApt}`,
   //     msg: "Success: Unset system, Linux sudo apt",
   //   });
   // });
+}
+
+async function setMacAllProxyPrompt(host, port) {
+  const proxyserver = `http://${host}:${port}`;
+  const commandsEnv = `
+    http_proxy=${proxyserver}
+    https_proxy=${proxyserver}
+    ftp_proxy=${proxyserver}
+    no_proxy="localhost,127.0.0.1,localaddress,.localdomain.com,127.0.0.0/8,::1"
+    HTTP_PROXY=${proxyserver}
+    HTTPS_PROXY=${proxyserver}
+    FTP_PROXY=${proxyserver}
+    NO_PROXY="localhost,127.0.0.1,localaddress,.localdomain.com,127.0.0.0/8,::1"
+    ALL_PROXY=${proxyserver}
+    all_proxy=${proxyserver}
+  `;
+  const cmd = `tee -a /etc/environment << EOF
+  ${commandsEnv}
+EOF`;
+  MacEnvCmd =
+    '/usr/bin/osascript -e \'do shell script "bash -c \\"' +
+    cmd +
+    '\\"" with administrator privileges\'';
+
+  exec(MacEnvCmd, (error, stdout, stderr) => {
+    if (error) {
+      console.error("Got an Error:", stderr);
+      // alert(stderr);
+      mainWindow.webContents.send("proxy:warning", {
+        msg: "Sudo implementation failed",
+      });
+      return;
+    }
+    console.log({ stdout });
+    console.log("Command executed successfully for environment variables.");
+    mainWindow.webContents.send("proxy:success", {
+      msg: "Success: Set env using sudo",
+    });
+  });
+}
+
+async function unsetMacAllProxyPrompt() {
+  const commandsEnv = `sed -i '/http_proxy=/d; /https_proxy=/d; /ftp_proxy=/d; /no_proxy=/d; /HTTP_PROXY=/d; /HTTPS_PROXY=/d; /FTP_PROXY=/d; /ALL_PROXY=/d; /all_proxy=/d; /NO_PROXY=/d' /etc/environment
+  `;
+  const MacEnvCmd =
+    '/usr/bin/osascript -e \'do shell script "bash -c \\"' +
+    commandsEnv +
+    '\\"" with administrator privileges\'';
+
+  exec(`${MacEnvCmd}`, (error, stdout, stderr) => {
+    if (error) {
+      console.error("Got an Error:", stderr);
+      // alert(stderr);
+      mainWindow.webContents.send("proxy:warning", {
+        msg: "Sudo implementation failed",
+      });
+      return;
+    }
+    console.log({ stdout });
+    console.log("Command executed successfully for environment variables.");
+    mainWindow.webContents.send("proxy:success", {
+      msg: "Success: Unset env using sudo",
+    });
+  });
 }
