@@ -524,10 +524,6 @@ async function setProxy(proxyServer, host, port) {
       }
     });
   });
-  if (process.platform === "darwin") {
-    await execPromise(`npm config set proxy ${proxyServer}`);
-    await execPromise(`npm config set https-proxy ${proxyServer}`);
-  }
 
   if (process.platform === "win32") {
     // Windows
@@ -617,10 +613,6 @@ async function unsetProxy() {
     });
   });
 
-  if (process.platform === "darwin") {
-    await execPromise(`npm config rm proxy`);
-    await execPromise(`npm config rm https-proxy`);
-  }
   // Determine the operating system
   if (process.platform === "win32") {
     // Windows
@@ -967,6 +959,7 @@ EOF`,
     (error, stdout, stderr) => {
       if (error) {
         console.error("Got an Error:", stderr);
+        alert(stderr);
         mainWindow.webContents.send("proxy:warning", {
           msg: "Sudo implementation failed",
         });
