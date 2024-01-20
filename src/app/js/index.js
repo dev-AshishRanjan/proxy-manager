@@ -151,7 +151,7 @@ window.ipcRenderer.on("proxy:success", (e, options) => {
   fireToast(e.msg, "success");
   setTimeout(() => {
     reRenderMainWindow();
-  }, 600);
+  }, 650);
 });
 window.ipcRenderer.on("proxy:error", (e, options) => {
   spinner.style.display = "block";
