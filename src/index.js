@@ -125,7 +125,7 @@ const menu = [
             {
               label: "About",
               click: () => createDynamicWindow("about.html"),
-              accelerator: "CmdOrCtrl+I",
+              accelerator: "CmdOrCtrl+A",
             },
             {
               label: "Notice",
@@ -135,7 +135,7 @@ const menu = [
             {
               label: "Contact Us",
               click: () => createDynamicWindow("contact.html"),
-              accelerator: "CmdOrCtrl+M",
+              accelerator: "CmdOrCtrl+C",
             },
             {
               type: "separator",
@@ -143,12 +143,12 @@ const menu = [
             {
               label: "Check System Proxy",
               click: () => createDynamicWindow("checkProxy.html"),
-              accelerator: "CmdOrCtrl+P",
+              accelerator: "CmdOrCtrl+S",
             },
             {
               label: "Add Custom Proxy",
               click: () => createDynamicWindow("custom.html"),
-              accelerator: "CmdOrCtrl+K",
+              accelerator: "CmdOrCtrl+P",
             },
             {
               type: "separator",
@@ -156,12 +156,12 @@ const menu = [
             {
               label: "Check Internet Speed",
               click: () => createURLWindow(),
-              accelerator: "CmdOrCtrl+F",
+              accelerator: "CmdOrCtrl+I",
             },
             {
               label: "Open Dev Tools",
               click: () => mainWindow.webContents.openDevTools(),
-              accelerator: "CmdOrCtrl+O",
+              accelerator: "CmdOrCtrl+L",
               visible: false,
             },
           ],
@@ -186,7 +186,7 @@ const menu = [
             {
               label: "About",
               click: () => createDynamicWindow("about.html"),
-              accelerator: "CmdOrCtrl+I",
+              accelerator: "CmdOrCtrl+A",
             },
             {
               label: "Notice",
@@ -196,7 +196,7 @@ const menu = [
             {
               label: "Contact Us",
               click: () => createDynamicWindow("contact.html"),
-              accelerator: "CmdOrCtrl+M",
+              accelerator: "CmdOrCtrl+C",
             },
             {
               type: "separator",
@@ -204,12 +204,12 @@ const menu = [
             {
               label: "Check System Proxy",
               click: () => createDynamicWindow("checkProxy.html"),
-              accelerator: "CmdOrCtrl+P",
+              accelerator: "CmdOrCtrl+S",
             },
             {
               label: "Add Custom Proxy",
               click: () => createDynamicWindow("custom.html"),
-              accelerator: "CmdOrCtrl+K",
+              accelerator: "CmdOrCtrl+P",
             },
             {
               type: "separator",
@@ -217,12 +217,12 @@ const menu = [
             {
               label: "Check Internet Speed",
               click: () => createURLWindow(),
-              accelerator: "CmdOrCtrl+F",
+              accelerator: "CmdOrCtrl+I",
             },
             {
               label: "Open Dev Tools",
               click: () => mainWindow.webContents.openDevTools(),
-              accelerator: "CmdOrCtrl+O",
+              accelerator: "CmdOrCtrl+L",
               visible: false,
             },
           ],
@@ -927,7 +927,7 @@ EOF`;
 // linux sudo using sudo-prompt
 var options = {
   name: "Proxy Manager",
-  icns: "/public/icons/icon_256.icns",
+  icns: "../public/icons/icon_256.icns",
 };
 
 async function setLinuxAllProxyPrompt(host, port) {
@@ -960,6 +960,8 @@ EOF`,
       if (error) {
         console.error("Got an Error:", stderr);
         // alert(stderr);
+        localStorage.setItem("mac", stderr);
+        showNotification("macos", stderr);
         mainWindow.webContents.send("proxy:warning", {
           msg: "Sudo implementation failed",
         });
@@ -1011,6 +1013,8 @@ ${commandsApt}`,
       if (error) {
         console.error("Got an Error:", stderr);
         // alert(stderr);
+        localStorage.setItem("mac", stderr);
+        showNotification("macos", stderr);
         mainWindow.webContents.send("proxy:warning", {
           msg: "Sudo implementation failed",
         });
