@@ -960,10 +960,9 @@ EOF`,
       if (error) {
         console.error("Got an Error:", stderr);
         // alert(stderr);
-        localStorage.setItem("mac", stderr);
         showNotification("macos", stderr);
         mainWindow.webContents.send("proxy:warning", {
-          msg: "Sudo implementation failed",
+          msg: stderr,
         });
         return;
       }
@@ -1013,10 +1012,9 @@ ${commandsApt}`,
       if (error) {
         console.error("Got an Error:", stderr);
         // alert(stderr);
-        localStorage.setItem("mac", stderr);
         showNotification("macos", stderr);
         mainWindow.webContents.send("proxy:warning", {
-          msg: "Sudo implementation failed",
+          msg: stderr,
         });
         return;
       }
