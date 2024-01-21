@@ -450,13 +450,13 @@ ipcMain.on("proxy:set", (e, options) => {
         : null;
     });
 
-  if (isMac) {
-    setMacAllProxy(
-      `http://${options.ipAddress}:${options.port}`,
-      options.ipAddress,
-      options.port
-    );
-  }
+  // if (isMac) {
+  //   setMacAllProxy(
+  //     `http://${options.ipAddress}:${options.port}`,
+  //     options.ipAddress,
+  //     options.port
+  //   );
+  // }
 });
 ipcMain.on("proxy:unset", (e, options) => {
   console.log(options);
@@ -474,9 +474,9 @@ ipcMain.on("proxy:unset", (e, options) => {
       proxyManagerSudo = result;
       result !== null && isLinux ? await unsetLinuxAllProxyPrompt() : null;
     });
-  if (isMac) {
-    unsetMacAllProxy();
-  }
+  // if (isMac) {
+  //   unsetMacAllProxy();
+  // }
 });
 ipcMain.on("proxy:check", (e, options) => {
   console.log(options);
