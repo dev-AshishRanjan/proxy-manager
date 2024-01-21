@@ -125,7 +125,7 @@ const menu = [
             {
               label: "About",
               click: () => createDynamicWindow("about.html"),
-              accelerator: "CmdOrCtrl+A",
+              accelerator: "CmdOrCtrl+B",
             },
             {
               label: "Notice",
@@ -135,7 +135,7 @@ const menu = [
             {
               label: "Contact Us",
               click: () => createDynamicWindow("contact.html"),
-              accelerator: "CmdOrCtrl+C",
+              accelerator: "CmdOrCtrl+M",
             },
             {
               type: "separator",
@@ -186,7 +186,7 @@ const menu = [
             {
               label: "About",
               click: () => createDynamicWindow("about.html"),
-              accelerator: "CmdOrCtrl+A",
+              accelerator: "CmdOrCtrl+B",
             },
             {
               label: "Notice",
@@ -196,7 +196,7 @@ const menu = [
             {
               label: "Contact Us",
               click: () => createDynamicWindow("contact.html"),
-              accelerator: "CmdOrCtrl+C",
+              accelerator: "CmdOrCtrl+M",
             },
             {
               type: "separator",
@@ -229,7 +229,7 @@ const menu = [
         },
       ]
     : []),
-  ...(isLinux || isMac
+  ...(isLinux
     ? [
         {
           label: "More",
@@ -434,7 +434,11 @@ ipcMain.on("proxy:set", (e, options) => {
   );
   // setProxyForVSCode(`https://${options.ipAddress}:${options.port}`);
   setProxyForPip(`https://${options.ipAddress}:${options.port}`);
-  setSystemEnvironmentVariables(`http://${options.ipAddress}:${options.port}`);
+  if (!isLinux && !isMac) {
+    setSystemEnvironmentVariables(
+      `http://${options.ipAddress}:${options.port}`
+    );
+  }
   // for linux manage all proxy with sudo
   mainWindow.webContents
     .executeJavaScript('localStorage.getItem("proxyManagerSudo");', true)
@@ -444,17 +448,24 @@ ipcMain.on("proxy:set", (e, options) => {
       result !== null && isLinux
         ? await setLinuxAllProxyPrompt(options.ipAddress, options.port)
         : null;
-      result !== null && isMac
-        ? await setMacAllProxyPrompt(options.ipAddress, options.port)
-        : null;
     });
+
+  if (isMac) {
+    setMacAllProxy(
+      `http://${options.ipAddress}:${options.port}`,
+      options.ipAddress,
+      options.port
+    );
+  }
 });
 ipcMain.on("proxy:unset", (e, options) => {
   console.log(options);
   unsetProxy();
   // unsetProxyForVSCode();
   unsetProxyForPip();
-  unsetSystemEnvironmentVariables();
+  if (!isLinux && !isMac) {
+    unsetSystemEnvironmentVariables();
+  }
   // for linux manage all proxy with sudo
   mainWindow.webContents
     .executeJavaScript('localStorage.getItem("proxyManagerSudo");', true)
@@ -462,8 +473,10 @@ ipcMain.on("proxy:unset", (e, options) => {
       console.log({ result });
       proxyManagerSudo = result;
       result !== null && isLinux ? await unsetLinuxAllProxyPrompt() : null;
-      result !== null && isMac ? await unsetMacAllProxyPrompt() : null;
     });
+  if (isMac) {
+    unsetMacAllProxy();
+  }
 });
 ipcMain.on("proxy:check", (e, options) => {
   console.log(options);
@@ -550,8 +563,8 @@ async function setProxy(proxyServer, host, port) {
     allCommands.push(`gsettings set org.gnome.system.proxy.https port ${port}`);
   } else if (process.platform === "darwin") {
     // macOS
-    allCommands.push(`networksetup -setwebproxy Wi-Fi ${host} ${port}`);
-    allCommands.push(`networksetup -setsecurewebproxy Wi-Fi ${host} ${port}`);
+    allCommands.push(`networksetup -setwebproxy "Wi-Fi" ${host} ${port}`);
+    allCommands.push(`networksetup -setsecurewebproxy "Wi-Fi" ${host} ${port}`);
   } else {
     console.error("Unsupported operating system");
     return;
@@ -631,8 +644,8 @@ async function unsetProxy() {
     allCommands.push('gsettings set org.gnome.system.proxy mode "none"');
   } else if (process.platform === "darwin") {
     // macOS
-    allCommands.push('networksetup -setwebproxy Wi-Fi "" 0');
-    allCommands.push('networksetup -setsecurewebproxy Wi-Fi "" 0');
+    allCommands.push('networksetup -setwebproxy "Wi-Fi" "" ""');
+    allCommands.push('networksetup -setsecurewebproxy "Wi-Fi" "" ""');
   } else {
     console.error("Unsupported operating system");
     return;
@@ -1042,66 +1055,115 @@ ${commandsApt}`,
   // });
 }
 
-async function setMacAllProxyPrompt(host, port) {
-  const proxyserver = `http://${host}:${port}`;
-  const commandsEnv = `
-    http_proxy=${proxyserver}
-    https_proxy=${proxyserver}
-    ftp_proxy=${proxyserver}
-    no_proxy="localhost,127.0.0.1,localaddress,.localdomain.com,127.0.0.0/8,::1"
-    HTTP_PROXY=${proxyserver}
-    HTTPS_PROXY=${proxyserver}
-    FTP_PROXY=${proxyserver}
-    NO_PROXY="localhost,127.0.0.1,localaddress,.localdomain.com,127.0.0.0/8,::1"
-    ALL_PROXY=${proxyserver}
-    all_proxy=${proxyserver}
-  `;
-  const cmd = `tee -a /etc/environment << EOF
-  ${commandsEnv}
-EOF`;
-  MacEnvCmd =
-    '/usr/bin/osascript -e \'do shell script "bash -c \\"' +
-    cmd +
-    '\\"" with administrator privileges\'';
-
-  exec(MacEnvCmd, (error, stdout, stderr) => {
-    if (error) {
-      console.error("Got an Error:", stderr);
-      // alert(stderr);
-      mainWindow.webContents.send("proxy:warning", {
-        msg: "Sudo implementation failed",
-      });
-      return;
-    }
-    console.log({ stdout });
-    console.log("Command executed successfully for environment variables.");
-    mainWindow.webContents.send("proxy:success", {
-      msg: "Success: Set env using sudo",
-    });
+async function setMacAllProxy(proxyServer, host, port) {
+  console.log(proxyServer);
+  const allCommands = [
+    `npm set proxy ${proxyServer}`,
+    `npm set https-proxy ${proxyServer}`,
+    `networksetup -setmanual "USB 10/100/1000 LAN" 192.168.212.82 255.255.240.0 192.168.208.1`,
+    `networksetup -setwebproxy "USB 10/100/1000 LAN" ${host} ${port}`,
+    `networksetup -setsecurewebproxy "USB 10/100/1000 LAN" ${host} ${port}`,
+  ];
+  allCommands.map((command) =>
+    exec(command, (error, stdout, stderr) => {
+      if (error) {
+        console.error("Got an Error : ", stderr);
+        return;
+      }
+      console.log({ stdout });
+      console.log(`command executed successfully: ${command}`);
+    })
+  );
+  mainWindow.webContents.send("proxy:success", {
+    msg: `success : set system env, npm`,
   });
 }
 
-async function unsetMacAllProxyPrompt() {
-  const commandsEnv = `sed -i '/http_proxy=/d; /https_proxy=/d; /ftp_proxy=/d; /no_proxy=/d; /HTTP_PROXY=/d; /HTTPS_PROXY=/d; /FTP_PROXY=/d; /ALL_PROXY=/d; /all_proxy=/d; /NO_PROXY=/d' /etc/environment
-  `;
-  const MacEnvCmd =
-    '/usr/bin/osascript -e \'do shell script "bash -c \\"' +
-    commandsEnv +
-    '\\"" with administrator privileges\'';
-
-  exec(`${MacEnvCmd}`, (error, stdout, stderr) => {
-    if (error) {
-      console.error("Got an Error:", stderr);
-      // alert(stderr);
-      mainWindow.webContents.send("proxy:warning", {
-        msg: "Sudo implementation failed",
-      });
-      return;
-    }
-    console.log({ stdout });
-    console.log("Command executed successfully for environment variables.");
-    mainWindow.webContents.send("proxy:success", {
-      msg: "Success: Unset env using sudo",
-    });
+async function unsetMacAllProxy() {
+  console.log(proxyServer);
+  // const allCommands = [
+  //   `npm config delete proxy`,
+  //   `npm config delete https-proxy`,
+  //   `networksetup -setmanual "USB 10/100/1000 LAN" 192.168.212.82 255.255.240.0 192.168.208.1`,
+  //   `networksetup -setwebproxy "USB 10/100/1000 LAN" "" ""`,
+  //   `networksetup -setsecurewebproxy "USB 10/100/1000 LAN" "" ""`,
+  // ];
+  const allCommands = [
+    `npm config delete proxy`,
+    `npm config delete https-proxy`,
+  ];
+  allCommands.map((command) =>
+    exec(command, (error, stdout, stderr) => {
+      if (error) {
+        console.error("Got an Error : ", stderr);
+        return;
+      }
+      console.log({ stdout });
+      console.log(`command executed successfully: ${command}`);
+    })
+  );
+  mainWindow.webContents.send("proxy:success", {
+    msg: `success : unset system env, npm`,
   });
 }
+
+// async function setMacAllProxyPrompt(host, port) {
+//   const proxyserver = `http://${host}:${port}`;
+//   const commandsEnv = `
+//     http_proxy=${proxyserver}
+//     https_proxy=${proxyserver}
+//     ftp_proxy=${proxyserver}
+//     no_proxy="localhost,127.0.0.1,localaddress,.localdomain.com,127.0.0.0/8,::1"
+//     HTTP_PROXY=${proxyserver}
+//     HTTPS_PROXY=${proxyserver}
+//     FTP_PROXY=${proxyserver}
+//     NO_PROXY="localhost,127.0.0.1,localaddress,.localdomain.com,127.0.0.0/8,::1"
+//     ALL_PROXY=${proxyserver}
+//     all_proxy=${proxyserver}
+//   `;
+//   const cmd = `tee -a /etc/environment << EOF
+//   ${commandsEnv}
+// EOF`;
+//   MacEnvCmd = `osascript -e "do shell script \"${cmd}\" with administrator privileges"`;
+
+//   exec(MacEnvCmd, (error, stdout, stderr) => {
+//     if (error) {
+//       console.error("Got an Error:", stderr);
+//       // alert(stderr);
+//       mainWindow.webContents.send("proxy:warning", {
+//         msg: "Sudo implementation failed",
+//       });
+//       return;
+//     }
+//     console.log({ stdout });
+//     console.log("Command executed successfully for environment variables.");
+//     mainWindow.webContents.send("proxy:success", {
+//       msg: "Success: Set env using sudo",
+//     });
+//   });
+// }
+
+// async function unsetMacAllProxyPrompt() {
+//   const commandsEnv = `sed -i '/http_proxy=/d; /https_proxy=/d; /ftp_proxy=/d; /no_proxy=/d; /HTTP_PROXY=/d; /HTTPS_PROXY=/d; /FTP_PROXY=/d; /ALL_PROXY=/d; /all_proxy=/d; /NO_PROXY=/d' /etc/environment
+//   `;
+//   const MacEnvCmd =
+//     '/usr/bin/osascript -e \'do shell script "bash -c \\"' +
+//     commandsEnv +
+//     '\\"" with administrator privileges\'';
+
+//   exec(`${MacEnvCmd}`, (error, stdout, stderr) => {
+//     if (error) {
+//       console.error("Got an Error:", stderr);
+//       // alert(stderr);
+//       mainWindow.webContents.send("proxy:warning", {
+//         msg: "Sudo implementation failed",
+//       });
+//       return;
+//     }
+//     console.log({ stdout });
+//     console.log("Command executed successfully for environment variables.");
+//     mainWindow.webContents.send("proxy:success", {
+//       msg: "Success: Unset env using sudo",
+//     });
+//   });
+// }
