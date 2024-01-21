@@ -1,7 +1,7 @@
 {
   "name": "proxy-manager",
   "productName": "Proxy Manager",
-  "version": "2.1.14",
+  "version": "2.1.15",
   "description": "Proxy manager for windows, linux, mac",
   "main": "src/index.js",
   "scripts": {
