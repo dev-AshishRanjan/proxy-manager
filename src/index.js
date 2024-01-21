@@ -1058,16 +1058,18 @@ ${commandsApt}`,
 async function setMacAllProxy(proxyServer, host, port) {
   console.log(proxyServer);
   const allCommands = [
-    `npm set proxy ${proxyServer}`,
-    `npm set https-proxy ${proxyServer}`,
     `networksetup -setmanual "USB 10/100/1000 LAN" 192.168.212.82 255.255.240.0 192.168.208.1`,
     `networksetup -setwebproxy "USB 10/100/1000 LAN" ${host} ${port}`,
     `networksetup -setsecurewebproxy "USB 10/100/1000 LAN" ${host} ${port}`,
+    `npm set https-proxy ${proxyServer}`,
   ];
-  allCommands.map((command) =>
+  await allCommands.map((command) =>
     exec(command, (error, stdout, stderr) => {
       if (error) {
         console.error("Got an Error : ", stderr);
+        mainWindow.webContents.send("proxy:error", {
+          msg: stderr,
+        });
         return;
       }
       console.log({ stdout });
@@ -1089,13 +1091,17 @@ async function unsetMacAllProxy() {
   //   `networksetup -setsecurewebproxy "USB 10/100/1000 LAN" "" ""`,
   // ];
   const allCommands = [
-    `npm config delete proxy`,
+    `networksetup -setwebproxy "USB 10/100/1000 LAN" "" ""`,
+    `networksetup -setsecurewebproxy "USB 10/100/1000 LAN" "" ""`,
     `npm config delete https-proxy`,
   ];
-  allCommands.map((command) =>
+  await allCommands.map((command) =>
     exec(command, (error, stdout, stderr) => {
       if (error) {
         console.error("Got an Error : ", stderr);
+        mainWindow.webContents.send("proxy:error", {
+          msg: stderr,
+        });
         return;
       }
       console.log({ stdout });
