@@ -563,8 +563,8 @@ async function setProxy(proxyServer, host, port) {
     allCommands.push(`gsettings set org.gnome.system.proxy.https port ${port}`);
   } else if (process.platform === "darwin") {
     // macOS
-    allCommands.push(`networksetup -setwebproxy "Wi-Fi" ${host} ${port}`);
-    allCommands.push(`networksetup -setsecurewebproxy "Wi-Fi" ${host} ${port}`);
+    allCommands.push(`networksetup -setwebproxy Wi-Fi ${host} ${port}`);
+    allCommands.push(`networksetup -setsecurewebproxy Wi-Fi ${host} ${port}`);
   } else {
     console.error("Unsupported operating system");
     return;
@@ -644,8 +644,8 @@ async function unsetProxy() {
     allCommands.push('gsettings set org.gnome.system.proxy mode "none"');
   } else if (process.platform === "darwin") {
     // macOS
-    allCommands.push('networksetup -setwebproxy "Wi-Fi" "" ""');
-    allCommands.push('networksetup -setsecurewebproxy "Wi-Fi" "" ""');
+    allCommands.push('networksetup -setwebproxy Wi-Fi "" ""');
+    allCommands.push('networksetup -setsecurewebproxy Wi-Fi "" ""');
   } else {
     console.error("Unsupported operating system");
     return;
@@ -1061,7 +1061,6 @@ async function setMacAllProxy(proxyServer, host, port) {
     `networksetup -setmanual "USB 10/100/1000 LAN" 192.168.212.82 255.255.240.0 192.168.208.1`,
     `networksetup -setwebproxy "USB 10/100/1000 LAN" ${host} ${port}`,
     `networksetup -setsecurewebproxy "USB 10/100/1000 LAN" ${host} ${port}`,
-    `npm set https-proxy ${proxyServer}`,
   ];
   await allCommands.map((command) =>
     exec(command, (error, stdout, stderr) => {
@@ -1093,7 +1092,6 @@ async function unsetMacAllProxy() {
   const allCommands = [
     `networksetup -setwebproxy "USB 10/100/1000 LAN" "" ""`,
     `networksetup -setsecurewebproxy "USB 10/100/1000 LAN" "" ""`,
-    `npm config delete https-proxy`,
   ];
   await allCommands.map((command) =>
     exec(command, (error, stdout, stderr) => {
