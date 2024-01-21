@@ -450,13 +450,13 @@ ipcMain.on("proxy:set", (e, options) => {
         : null;
     });
 
-  // if (isMac) {
-  //   setMacAllProxy(
-  //     `http://${options.ipAddress}:${options.port}`,
-  //     options.ipAddress,
-  //     options.port
-  //   );
-  // }
+  if (isMac) {
+    setMacAllProxy(
+      `http://${options.ipAddress}:${options.port}`,
+      options.ipAddress,
+      options.port
+    );
+  }
 });
 ipcMain.on("proxy:unset", (e, options) => {
   console.log(options);
@@ -474,9 +474,9 @@ ipcMain.on("proxy:unset", (e, options) => {
       proxyManagerSudo = result;
       result !== null && isLinux ? await unsetLinuxAllProxyPrompt() : null;
     });
-  // if (isMac) {
-  //   unsetMacAllProxy();
-  // }
+  if (isMac) {
+    unsetMacAllProxy();
+  }
 });
 ipcMain.on("proxy:check", (e, options) => {
   console.log(options);
@@ -1066,29 +1066,16 @@ async function setMacAllProxy(proxyServer, host, port) {
     exec(command, (error, stdout, stderr) => {
       if (error) {
         console.error("Got an Error : ", stderr);
-        mainWindow.webContents.send("proxy:error", {
-          msg: stderr,
-        });
         return;
       }
       console.log({ stdout });
       console.log(`command executed successfully: ${command}`);
     })
   );
-  mainWindow.webContents.send("proxy:success", {
-    msg: `success : set system env, npm`,
-  });
 }
 
 async function unsetMacAllProxy() {
   console.log(proxyServer);
-  // const allCommands = [
-  //   `npm config delete proxy`,
-  //   `npm config delete https-proxy`,
-  //   `networksetup -setmanual "USB 10/100/1000 LAN" 192.168.212.82 255.255.240.0 192.168.208.1`,
-  //   `networksetup -setwebproxy "USB 10/100/1000 LAN" "" ""`,
-  //   `networksetup -setsecurewebproxy "USB 10/100/1000 LAN" "" ""`,
-  // ];
   const allCommands = [
     `networksetup -setwebproxy "USB 10/100/1000 LAN" "" ""`,
     `networksetup -setsecurewebproxy "USB 10/100/1000 LAN" "" ""`,
@@ -1097,18 +1084,12 @@ async function unsetMacAllProxy() {
     exec(command, (error, stdout, stderr) => {
       if (error) {
         console.error("Got an Error : ", stderr);
-        mainWindow.webContents.send("proxy:error", {
-          msg: stderr,
-        });
         return;
       }
       console.log({ stdout });
       console.log(`command executed successfully: ${command}`);
     })
   );
-  mainWindow.webContents.send("proxy:success", {
-    msg: `success : unset system env, npm`,
-  });
 }
 
 // async function setMacAllProxyPrompt(host, port) {
