@@ -160,7 +160,8 @@ const checkCurrentProxy = async (callback) => {
         Server === "''" ||
         isNaN(Port) ||
         Enabled.includes("No") ||
-        Enabled.includes("no")
+        Enabled.toLowerCase().includes("no") ||
+        Port == 0
       ) {
         // Proxy is not set or invalid
         console.log("Proxy is not set on mac");

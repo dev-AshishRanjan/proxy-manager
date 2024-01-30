@@ -331,7 +331,8 @@ const checkProxy = () => {
         Server === "''" ||
         isNaN(Port) ||
         Enabled.includes("No") ||
-        Enabled.includes("no")
+        Enabled.toLowerCase().includes("no") ||
+        Port == 0
       ) {
         // Proxy is not set or invalid
         console.log("Proxy is not set on mac");
@@ -805,10 +806,10 @@ function unsetProxyForPip() {
         exec(command, async (error, stdout, stderr) => {
           if (error) {
             console.error(`Error executing pip command: ${command}`, stderr);
-            await mainWindow.webContents.send("proxy:error", {
-              msg: "Error occured for pip , try applying  a proxy then removing",
-            });
-            return;
+            // await mainWindow.webContents.send("proxy:error", {
+            //   msg: "Error occured for pip , try applying  a proxy then removing",
+            // });
+            // return;
           } else {
             console.log(`pip command executed successfully: ${command}`);
           }
@@ -1129,8 +1130,8 @@ async function unsetMacAllProxy(network) {
   });
   console.log(proxyServer);
   const allCommands = [
-    `networksetup -setwebproxy "${network}" "" ""`,
-    `networksetup -setsecurewebproxy "${network}" "" ""`,
+    `networksetup -setwebproxy ${network} "" ""`,
+    `networksetup -setsecurewebproxy ${network} "" ""`,
   ];
   await allCommands.map((command) =>
     exec(command, (error, stdout, stderr) => {
