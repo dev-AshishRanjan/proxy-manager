@@ -747,7 +747,9 @@ function setProxyForPip(proxyServer) {
         exec(command, async (error, stdout, stderr) => {
           if (error) {
             console.error(`Error executing pip command: ${command}`, stderr);
-            await mainWindow.webContents.send("proxy:error", { msg: stderr });
+            await mainWindow.webContents.send("proxy:error", {
+              msg: "Error for pip: try again",
+            });
             return;
           } else {
             console.log(`pip command executed successfully: ${command}`);
@@ -806,9 +808,9 @@ function unsetProxyForPip() {
         exec(command, async (error, stdout, stderr) => {
           if (error) {
             console.error(`Error executing pip command: ${command}`, stderr);
-            // await mainWindow.webContents.send("proxy:error", {
-            //   msg: "Error occured for pip , try applying  a proxy then removing",
-            // });
+            await mainWindow.webContents.send("proxy:error", {
+              msg: "Error for pip: first apply a proxy then try removing",
+            });
             // return;
           } else {
             console.log(`pip command executed successfully: ${command}`);
