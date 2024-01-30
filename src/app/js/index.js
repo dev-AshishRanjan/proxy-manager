@@ -197,3 +197,7 @@ window.ipcRenderer.on("form-accepted", (e, options) => {
   fireToast(e.msg, "info");
   reRenderMainWindow();
 });
+
+window.ipcRenderer.on("debug", (e, options) => {
+  console.log({ debug: e });
+});

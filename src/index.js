@@ -1100,7 +1100,6 @@ ${commandsApt}`,
 }
 
 async function setMacAllProxy(host, port, network) {
-  // console.log(proxyServer);
   mainWindow.webContents.send("proxy:sys:started", {
     msg: "started",
   });
@@ -1128,19 +1127,26 @@ async function unsetMacAllProxy(network) {
   mainWindow.webContents.send("proxy:sys:started", {
     msg: "started",
   });
-  console.log(proxyServer);
   const allCommands = [
-    `networksetup -setwebproxy ${network} "" ""`,
-    `networksetup -setsecurewebproxy ${network} "" ""`,
+    `networksetup -setwebproxy "${network}" "" ""`,
+    `networksetup -setsecurewebproxy "${network}" "" ""`,
   ];
   await allCommands.map((command) =>
     exec(command, (error, stdout, stderr) => {
       if (error) {
         console.error("Got an Error : ", stderr);
+        mainWindow.webContents.send("debug", {
+          msg: stderr,
+          command: command,
+        });
         return;
       }
       console.log({ stdout });
       console.log(`command executed successfully: ${command}`);
+      mainWindow.webContents.send("debug", {
+        msg: stdout,
+        command: command,
+      });
     })
   );
   mainWindow.webContents.send("proxy:sys:complete", {
