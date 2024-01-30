@@ -3,22 +3,23 @@ const spinner = document.querySelector(".spinner");
 // const proxyList = localStorage.getItem("proxyList");
 // const proxyListParsed = JSON.parse(proxyList);
 
+var count = 0;
 var currentProxy;
 spinner.style.display = "block";
 // ipcRenderer.send("proxy:check");
 function initialRenderMainWindow() {
-  spinner.style.display = "block";
+  // spinner.style.display = "block";
   var proxyListParsed = proxy.checkProxyList();
   const noProxy = { title: "Remove Proxy" };
   renderCard(noProxy);
-  // spinner.style.display = "none";
+  spinner.style.display = "none";
   proxyListParsed.map((ele) => {
     renderCard(ele);
   });
 }
 
 function reRenderMainWindow() {
-  spinner.style.display = "block";
+  // spinner.style.display = "block";
   var proxyListParsed = proxy.checkProxyList();
   const noProxy = { title: "Remove Proxy" };
   proxyCards ? (proxyCards.innerHTML = "") : null;
@@ -35,7 +36,7 @@ initialRenderMainWindow();
 // reRenderMainWindow();
 
 function renderCard(ele) {
-  spinner.style.display = "block";
+  // spinner.style.display = "block";
   let cardDiv = document.createElement("div");
   cardDiv.classList.add("card");
   cardDiv.setAttribute("title", "click to set this proxy");
@@ -82,7 +83,7 @@ function renderCard(ele) {
     }
   });
   proxyCards && proxyCards.appendChild(cardDiv);
-  spinner.style.display = "none";
+  // spinner.style.display = "none";
 }
 
 function handleProxyChange(ele) {
@@ -102,9 +103,11 @@ function handleProxyRemove() {
   proxy.checkCurrentProxy((proxy, error) => {
     if (error) {
       fireToast("Proxy already removed", "info");
+      spinner.style.display = "none";
       return;
     } else if (proxy === undefined) {
       fireToast("Proxy already removed", "info");
+      spinner.style.display = "none";
       return;
     } else {
       ipcRenderer.send("proxy:unset", {});
@@ -146,7 +149,7 @@ function fireToast(message, type = info) {
 }
 
 window.ipcRenderer.on("proxy:success", (e, options) => {
-  spinner.style.display = "block";
+  // spinner.style.display = "block";
   console.log({ e });
   fireToast(e.msg, "success");
   setTimeout(() => {
@@ -154,19 +157,32 @@ window.ipcRenderer.on("proxy:success", (e, options) => {
   }, 650);
 });
 window.ipcRenderer.on("proxy:error", (e, options) => {
-  spinner.style.display = "block";
+  // spinner.style.display = "block";
   console.log({ e });
   fireToast(e.msg, "error");
-  // setTimeout(() => {
-  //   reRenderMainWindow();
-  // }, 600);
+  setTimeout(() => {
+    reRenderMainWindow();
+  }, 600);
 });
 window.ipcRenderer.on("proxy:warning", (e, options) => {
-  spinner.style.display = "block";
+  // spinner.style.display = "block";
   console.log({ e });
   fireToast(e.msg, "info");
+  setTimeout(() => {
+    reRenderMainWindow();
+  }, 600);
   // reRenderMainWindow();
 });
+
+window.ipcRenderer.on("proxy:sys:complete", (e, options) => {
+  spinner.style.display = "none";
+  console.log({ "proxy:sys:complete": e });
+});
+window.ipcRenderer.on("proxy:sys:started", (e, options) => {
+  spinner.style.display = "block";
+  console.log({ "proxy:sys:started": e });
+});
+
 window.ipcRenderer.on("proxy:check:error", (e, options) => {
   console.log({ e });
   fireToast(e.msg, "error");

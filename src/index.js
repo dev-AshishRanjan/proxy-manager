@@ -161,7 +161,7 @@ const menu = [
             {
               label: "Open Dev Tools",
               click: () => mainWindow.webContents.openDevTools(),
-              accelerator: "CmdOrCtrl+L",
+              accelerator: "CmdOrCtrl+D",
               visible: false,
             },
           ],
@@ -222,7 +222,7 @@ const menu = [
             {
               label: "Open Dev Tools",
               click: () => mainWindow.webContents.openDevTools(),
-              accelerator: "CmdOrCtrl+L",
+              accelerator: "CmdOrCtrl+D",
               visible: false,
             },
           ],
@@ -237,7 +237,21 @@ const menu = [
             {
               label: "Sudo Usage",
               click: () => createDynamicWindow("addSudo.html"),
-              accelerator: "CmdOrCtrl+S",
+              accelerator: "CmdOrCtrl+U",
+            },
+          ],
+        },
+      ]
+    : []),
+  ...(isMac
+    ? [
+        {
+          label: "More",
+          submenu: [
+            {
+              label: "All Networks",
+              click: () => createDynamicWindow("macAllNetwork.html"),
+              accelerator: "CmdOrCtrl+U",
             },
           ],
         },
@@ -448,14 +462,13 @@ ipcMain.on("proxy:set", (e, options) => {
       result !== null && isLinux
         ? await setLinuxAllProxyPrompt(options.ipAddress, options.port)
         : null;
+      result !== null && isMac
+        ? await setMacAllNetworkProxy(options.ipAddress, options.port)
+        : null;
     });
 
   if (isMac) {
-    setMacAllProxy(
-      `http://${options.ipAddress}:${options.port}`,
-      options.ipAddress,
-      options.port
-    );
+    setMacAllProxy(options.ipAddress, options.port, "USB 10/100/1000 LAN");
   }
 });
 ipcMain.on("proxy:unset", (e, options) => {
@@ -473,9 +486,10 @@ ipcMain.on("proxy:unset", (e, options) => {
       console.log({ result });
       proxyManagerSudo = result;
       result !== null && isLinux ? await unsetLinuxAllProxyPrompt() : null;
+      result !== null && isMac ? await unsetMacAllNetworkProxy() : null;
     });
   if (isMac) {
-    unsetMacAllProxy();
+    unsetMacAllProxy("USB 10/100/1000 LAN");
   }
 });
 ipcMain.on("proxy:check", (e, options) => {
@@ -575,6 +589,9 @@ async function setProxy(proxyServer, host, port) {
         if (error) {
           console.error("Got an Error : ", stderr);
           mainWindow.webContents.send("proxy:error", { msg: stderr });
+          mainWindow.webContents.send("proxy:sys:complete", {
+            msg: "completed",
+          });
           return;
         }
         console.log({ stdout });
@@ -586,6 +603,9 @@ async function setProxy(proxyServer, host, port) {
     console.log({ servicesUpdated });
     mainWindow.webContents.send("proxy:success", {
       msg: `success : set system, ${servicesUpdated.join(", ")}`,
+    });
+    mainWindow.webContents.send("proxy:sys:complete", {
+      msg: "completed",
     });
   });
 }
@@ -657,6 +677,9 @@ async function unsetProxy() {
           if (error) {
             console.error("Got an Error : ", stderr);
             await mainWindow.webContents.send("proxy:error", { msg: stderr });
+            await mainWindow.webContents.send("proxy:sys:complete", {
+              msg: "completed",
+            });
             return;
           }
           console.log({ stdout });
@@ -669,6 +692,9 @@ async function unsetProxy() {
     delete process.env.HTTPS_PROXY;
     mainWindow.webContents.send("proxy:success", {
       msg: `success : unset system, ${servicesUpdated.join(", ")}`,
+    });
+    mainWindow.webContents.send("proxy:sys:complete", {
+      msg: "completed",
     });
   });
 }
@@ -779,7 +805,9 @@ function unsetProxyForPip() {
         exec(command, async (error, stdout, stderr) => {
           if (error) {
             console.error(`Error executing pip command: ${command}`, stderr);
-            await mainWindow.webContents.send("proxy:error", { msg: stderr });
+            await mainWindow.webContents.send("proxy:error", {
+              msg: "Error occured for pip , try applying  a proxy then removing",
+            });
             return;
           } else {
             console.log(`pip command executed successfully: ${command}`);
@@ -806,7 +834,9 @@ function setSystemEnvironmentVariables(proxyServer) {
       exec(command, async (error, stdout, stderr) => {
         if (error) {
           console.error(`Error executing command: ${command}`, stderr);
-          await mainWindow.webContents.send("proxy:error", { msg: stderr });
+          await mainWindow.webContents.send("proxy:error", {
+            msg: "Some Error occured, Please select the Proxy again",
+          });
           return;
         } else {
           console.log(`Command executed successfully: ${command}`);
@@ -891,6 +921,7 @@ EOF`;
     });
   });
   exec(commandsApt, (error, stdout, stderr) => {
+    k;
     if (error) {
       console.error("Got an Error : ", stderr);
       mainWindow.webContents.send("proxy:error", { msg: stderr });
@@ -948,6 +979,9 @@ var options = {
 };
 
 async function setLinuxAllProxyPrompt(host, port) {
+  mainWindow.webContents.send("proxy:sys:started", {
+    msg: "started",
+  });
   const proxyserver = `http://${host}:${port}`;
   const commandsEnv = `
     http_proxy=${proxyserver}
@@ -987,6 +1021,9 @@ EOF`,
       mainWindow.webContents.send("proxy:success", {
         msg: "Success: Set env, APT proxy using sudo",
       });
+      mainWindow.webContents.send("proxy:sys:complete", {
+        msg: "completed",
+      });
     }
   );
   //   sudo.exec(
@@ -1010,6 +1047,9 @@ EOF`,
 }
 
 async function unsetLinuxAllProxyPrompt() {
+  mainWindow.webContents.send("proxy:sys:started", {
+    msg: "started",
+  });
   const commandsEnv = `sed -i '/http_proxy=/d; /https_proxy=/d; /ftp_proxy=/d; /no_proxy=/d; /HTTP_PROXY=/d; /HTTPS_PROXY=/d; /FTP_PROXY=/d; /NO_PROXY=/d' /etc/environment
   `;
   //   const commandsEnv = `
@@ -1038,6 +1078,9 @@ ${commandsApt}`,
       mainWindow.webContents.send("proxy:success", {
         msg: "Success: Unset env, APT proxy using sudo",
       });
+      mainWindow.webContents.send("proxy:sys:complete", {
+        msg: "completed",
+      });
     }
   );
 
@@ -1055,12 +1098,15 @@ ${commandsApt}`,
   // });
 }
 
-async function setMacAllProxy(proxyServer, host, port) {
-  console.log(proxyServer);
+async function setMacAllProxy(host, port, network) {
+  // console.log(proxyServer);
+  mainWindow.webContents.send("proxy:sys:started", {
+    msg: "started",
+  });
   const allCommands = [
-    `networksetup -setmanual "USB 10/100/1000 LAN" 192.168.212.82 255.255.240.0 192.168.208.1`,
-    `networksetup -setwebproxy "USB 10/100/1000 LAN" ${host} ${port}`,
-    `networksetup -setsecurewebproxy "USB 10/100/1000 LAN" ${host} ${port}`,
+    `networksetup -setmanual "${network}" 192.168.212.82 255.255.240.0 192.168.208.1`,
+    `networksetup -setwebproxy "${network}" ${host} ${port}`,
+    `networksetup -setsecurewebproxy "${network}" ${host} ${port}`,
   ];
   await allCommands.map((command) =>
     exec(command, (error, stdout, stderr) => {
@@ -1072,13 +1118,19 @@ async function setMacAllProxy(proxyServer, host, port) {
       console.log(`command executed successfully: ${command}`);
     })
   );
+  mainWindow.webContents.send("proxy:sys:complete", {
+    msg: "completed",
+  });
 }
 
-async function unsetMacAllProxy() {
+async function unsetMacAllProxy(network) {
+  mainWindow.webContents.send("proxy:sys:started", {
+    msg: "started",
+  });
   console.log(proxyServer);
   const allCommands = [
-    `networksetup -setwebproxy "USB 10/100/1000 LAN" "" ""`,
-    `networksetup -setsecurewebproxy "USB 10/100/1000 LAN" "" ""`,
+    `networksetup -setwebproxy "${network}" "" ""`,
+    `networksetup -setsecurewebproxy "${network}" "" ""`,
   ];
   await allCommands.map((command) =>
     exec(command, (error, stdout, stderr) => {
@@ -1090,6 +1142,55 @@ async function unsetMacAllProxy() {
       console.log(`command executed successfully: ${command}`);
     })
   );
+  mainWindow.webContents.send("proxy:sys:complete", {
+    msg: "completed",
+  });
+}
+
+async function setMacAllNetworkProxy(host, port) {
+  // let proxyCommand = "networksetup -listallhardwareports";
+  let proxyCommand = "networksetup -listallnetworkservices";
+  exec(proxyCommand, (error, stdout, stderr) => {
+    if (error) {
+      console.error("Error checking darwin wifi proxy settings:", stderr);
+      mainWindow.webContents.send("proxy:check:error", {
+        msg: `error : can't get mac's networks`,
+      });
+    }
+
+    const allNetworks = stdout
+      .trim()
+      .split("\n")
+      .map((line) => line.trim());
+
+    for (let i = 1; i < allNetworks.length; i++) {
+      console.log(allNetworks[i]);
+      setMacAllProxy(host, port, allNetworks[i]);
+    }
+  });
+}
+
+async function unsetMacAllNetworkProxy() {
+  // let proxyCommand = "networksetup -listallhardwareports";
+  let proxyCommand = "networksetup -listallnetworkservices";
+  exec(proxyCommand, (error, stdout, stderr) => {
+    if (error) {
+      console.error("Error checking darwin wifi proxy settings:", stderr);
+      mainWindow.webContents.send("proxy:check:error", {
+        msg: `error : can't get mac's networks`,
+      });
+    }
+
+    const allNetworks = stdout
+      .trim()
+      .split("\n")
+      .map((line) => line.trim());
+
+    for (let i = 1; i < allNetworks.length; i++) {
+      console.log(allNetworks[i]);
+      unsetMacAllProxy(allNetworks[i]);
+    }
+  });
 }
 
 // async function setMacAllProxyPrompt(host, port) {
