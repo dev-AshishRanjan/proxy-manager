@@ -1135,18 +1135,18 @@ async function unsetMacAllProxy(network) {
     exec(command, (error, stdout, stderr) => {
       if (error) {
         console.error("Got an Error : ", stderr);
-        mainWindow.webContents.send("debug", {
-          msg: stderr,
-          command: command,
-        });
+        // mainWindow.webContents.send("debug", {
+        //   msg: stderr,
+        //   command: command,
+        // });
         return;
       }
       console.log({ stdout });
       console.log(`command executed successfully: ${command}`);
-      mainWindow.webContents.send("debug", {
-        msg: stdout,
-        command: command,
-      });
+      // mainWindow.webContents.send("debug", {
+      //   msg: stdout,
+      //   command: command,
+      // });
     })
   );
   mainWindow.webContents.send("proxy:sys:complete", {
