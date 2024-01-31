@@ -1,37 +1,33 @@
-![proxy-manager](https://socialify.git.ci/dev-AshishRanjan/proxy-manager/image?description=1&font=KoHo&forks=1&issues=1&language=1&owner=1&pulls=1&stargazers=1&theme=Auto)
+<!-- ![proxy-manager](https://socialify.git.ci/dev-AshishRanjan/proxy-manager/image?description=1&font=KoHo&forks=1&issues=1&language=1&owner=1&pulls=1&stargazers=1&theme=Auto)
+ -->
 
 <div align="center">
+<p>
+
+![Logo](./public/images/icon_512.png)
+
+</p>
+</div>
+
+<p align="center">
+  <img align="center" src="https://readme-typing-svg.herokuapp.com?color=%23${textVal}&lines=+👋🏻+Welcome+to+Proxy+Manager+👋🏻;👨🏻‍💻+Lets+Build+Together+👩🏻‍💻;💡+Download+Our+App!+💡;🌐+Check+our+website+🌐;🙏🏻+Thanks+for+Contributing+🙏🏻"
+ <img src= 'https://capsule-render.vercel.app/api?type=rect&color=gradient&height=2.5'/>
+</p>
+
+
+
+# **_Package Manager_**
+
+A Proxy Manager build with **Electronjs** for Window, Linux, Mac
+<div align="left">
  <p>
-   
-[![Open Source Love svg1](https://badges.frapsoft.com/os/v1/open-source.svg?v=103)](https://github.com/ellerbrock/open-source-badges/)
-![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat)
-![Visitors](https://api.visitorbadge.io/api/visitors?path=dev-AshishRanjan%2Fproxy-manager%20&countColor=%23263759&style=flat)
-![GitHub forks](https://img.shields.io/github/forks/dev-AshishRanjan/proxy-manager)
-![GitHub Repo stars](https://img.shields.io/github/stars/dev-AshishRanjan/proxy-manager)
-![GitHub contributors](https://img.shields.io/github/contributors/dev-AshishRanjan/proxy-manager)
-![GitHub last commit](https://img.shields.io/github/last-commit/dev-AshishRanjan/proxy-manager)
-  
+
 ![GitHub repo size](https://img.shields.io/github/repo-size/dev-AshishRanjan/proxy-manager)
 ![Github LOC](https://tokei.rs/b1/github/dev-AshishRanjan/proxy-manager)
 ![Github Files](https://tokei.rs/b1/github/dev-AshishRanjan/proxy-manager?category=files)
 
-![Github](https://img.shields.io/github/license/dev-AshishRanjan/proxy-manager)
-![GitHub issues](https://img.shields.io/github/issues/dev-AshishRanjan/proxy-manager)
-![GitHub closed issues](https://img.shields.io/github/issues-closed-raw/dev-AshishRanjan/proxy-manager)
-![GitHub pull requests](https://img.shields.io/github/issues-pr/dev-AshishRanjan/proxy-manager)
-![GitHub closed pull requests](https://img.shields.io/github/issues-pr-closed/dev-AshishRanjan/proxy-manager)
-
  </p>
 </div>
-
-<p align="center">
-  <img align="center" src="https://readme-typing-svg.herokuapp.com?color=%23${textVal}&lines=+👋🏻+Welcome+to+Proxy+Manager+👋🏻;👨🏻‍💻+Lets+Build+Together+👩🏻‍💻;💡+Get+To+Know+More+About+Proxy+Manager!+💡;🌐+Check+our+releases+🌐;🙏🏻+Thanks+for+Contributing+🙏🏻"
- <img src= 'https://capsule-render.vercel.app/api?type=rect&color=gradient&height=2.5'/>
-</p>
-
-# **_Package Manager_**
-
-A Proxy Manager build with Electronjs.
 
 ## Features:
 
@@ -61,11 +57,25 @@ A Proxy Manager build with Electronjs.
     <img src="https://img.shields.io/badge/css3-7c3aed?style=for-the-badge&logo=css3&logoColor=white" alt="react official Website"/>
 </p>
 
-## Go to [release section](https://github.com/dev-AshishRanjan/proxy-manager/releases) to get Proxy Manager for your PC
+> Go to [release section](https://github.com/dev-AshishRanjan/proxy-manager/releases) to get Proxy Manager for your PC
+>
+> OR,
+>
+> Download through our [Website](https://proxy-manager-pc.vercel.app) with ease.
+
+## Images
+
+| Home Window                                                         | Add Custom Proxy                                                              |
+| ------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| ![img](./public/images/home1.png) ![img](./public/images/home2.png) | ![img](./public/images/add_proxy1.png) ![img](./public/images/add_proxy2.png) |
+
+| Notice                              | Check System Proxy                      | Add Sudo(for Linux)              |
+| ----------------------------------- | --------------------------------------- | -------------------------------- |
+| ![img](./public/images/notice1.png) | ![img](./public/images/chech_proxy.png) | ![img](./public/images/sudo.png) |
 
 ## Installation
 
-1. Go to [release section](https://github.com/dev-AshishRanjan/proxy-manager/releases)
+1. Go to [release section](https://github.com/dev-AshishRanjan/proxy-manager/releases) or Download through our [Website](https://proxy-manager-pc.vercel.app) with ease.
 2. Download the package format supported by your operating system
 
 - window : Proxy-Manager-1.0.7-Setup.exe
