@@ -22,12 +22,14 @@ const isDev = process.env.NODE_ENV === "development"; //change it to (!=="produc
 
 let mainWindow;
 let dynamicWindow;
+let splashScreen;
 
 const createWindow = () => {
   // Create the browser window.
   mainWindow = new BrowserWindow({
     width: isDev ? 1000 : 550,
     height: 600,
+    show: false,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       nodeIntegration: true,
@@ -44,6 +46,20 @@ const createWindow = () => {
   if (isDev) {
     mainWindow.webContents.openDevTools();
   }
+
+  mainWindow.once("ready-to-show", () => {
+    // mainWindow.show();
+    // if (splashScreen) {
+    //   splashScreen.close();
+    // }
+    setTimeout(() => {
+      mainWindow.show();
+      if (splashScreen) {
+        splashScreen.close();
+      }
+    }, 1000);
+  });
+
   // when main window is closed, close all window
   mainWindow.on("closed", () => {
     // Close all windows when the main window is closed
@@ -83,6 +99,27 @@ const createDynamicWindow = (file) => {
     dynamicWindow.webContents.openDevTools();
   }
 };
+
+function createSplashScreen() {
+  splashScreen = new BrowserWindow({
+    width: 550,
+    height: 550,
+    frame: false,
+    alwaysOnTop: true,
+    resizable: false,
+    webPreferences: {
+      nodeIntegration: true,
+    },
+    roundedCorners: true,
+    transparent: true, // Set the window to be transparent
+  });
+
+  splashScreen.loadFile(path.join(__dirname, "./app/splash.html"));
+
+  splashScreen.on("closed", () => {
+    splashScreen = null;
+  });
+}
 
 const createURLWindow = (file) => {
   dynamicWindow = new BrowserWindow({
@@ -405,6 +442,7 @@ const checkProxy = () => {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
+  createSplashScreen();
   createWindow();
   // checkProxy();
   // showNotification();
