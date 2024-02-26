@@ -77,9 +77,11 @@ const createWindow = () => {
 };
 // create dynamic window
 const createDynamicWindow = (file) => {
+  createSplashScreen();
   dynamicWindow = new BrowserWindow({
     width: isDev ? 1000 : 550,
     height: 600,
+    show: false,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       nodeIntegration: true,
@@ -98,6 +100,19 @@ const createDynamicWindow = (file) => {
   if (isDev) {
     dynamicWindow.webContents.openDevTools();
   }
+
+  dynamicWindow.once("ready-to-show", () => {
+    // dynamicWindow.show();
+    // if (splashScreen) {
+    //   splashScreen.close();
+    // }
+    setTimeout(() => {
+      dynamicWindow.show();
+      if (splashScreen) {
+        splashScreen.close();
+      }
+    }, 500);
+  });
 };
 
 function createSplashScreen() {
@@ -110,6 +125,7 @@ function createSplashScreen() {
     webPreferences: {
       nodeIntegration: true,
     },
+    icon: path.join(__dirname, "./assets/icons/icon_512.png"),
     roundedCorners: true,
     transparent: true, // Set the window to be transparent
   });
@@ -122,9 +138,11 @@ function createSplashScreen() {
 }
 
 const createURLWindow = (file) => {
+  createSplashScreen();
   dynamicWindow = new BrowserWindow({
     width: isDev ? 1000 : 550,
     height: 600,
+    show: false,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       nodeIntegration: true,
@@ -140,9 +158,26 @@ const createURLWindow = (file) => {
   dynamicWindow.setIcon(path.join(__dirname, "./assets/icons/icon_512.png"));
   // and load the index.html of the app.
   dynamicWindow.loadURL("https://aethernex.vercel.app");
+  // did-fail-load
+  dynamicWindow.webContents.on(
+    "did-fail-load",
+    (event, errorCode, errorDescription, validatedURL, isMainFrame) => {
+      // Load a local HTML file if URL loading fails
+      dynamicWindow.loadFile(path.join(__dirname, "./app/error.html"));
+      // console.log({event,errorCode,errorDescription,validatedURL,isMainFrame});
+    }
+  );
   if (isDev) {
     dynamicWindow.webContents.openDevTools();
   }
+  dynamicWindow.once("ready-to-show", () => {
+    setTimeout(() => {
+      dynamicWindow.show();
+      if (splashScreen) {
+        splashScreen.close();
+      }
+    }, 500);
+  });
 };
 
 function showNotification({ title, body }) {
